@@ -14,7 +14,7 @@
 import React from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';
 import {C, H, W, clamp} from '../theme';
-import {Note, Stage, Text, usePop} from '../ui';
+import {Stage, Text, usePop} from '../ui';
 
 export const FRUIT_FRAMES = 464;
 const B = {juicing: 0, blending: 118, glass: 291}; // estimated cue starts
@@ -88,15 +88,15 @@ const Blending: React.FC = () => {
     <g opacity={vis}>
       {/* segments falling in */}
       {[0, 1, 2, 3].map((i) => (
-        <path
+        <g
           key={i}
-          d="M0 0 A60 60 0 0 1 60 0 Z"
-          transform={`translate(${470 + i * 34} ${interpolate(drop, [0, 1], [430 + i * 20, 840])}) rotate(${i * 40 + t * 3})`}
-          fill={C.orange}
-          stroke={C.pith}
-          strokeWidth={5}
+          transform={`translate(${440 + i * 66} ${interpolate(drop, [0, 1], [420 + (i % 2) * 40, 900])}) rotate(${i * 50 + t * 3})`}
           opacity={1 - mix}
-        />
+        >
+          {/* one peeled segment: crescent with pith edge */}
+          <path d="M-60 0 A60 60 0 0 1 60 0 Q0 26 -60 0 Z" fill={C.orange} stroke={C.pith} strokeWidth={6} strokeLinejoin="round" />
+          <path d="M-30 -14 L-22 -30 M0 -18 L0 -40 M30 -14 L22 -30" stroke={C.pith} strokeWidth={4} strokeLinecap="round" />
+        </g>
       ))}
       {/* blender jug */}
       <path d="M380 620 H700 L660 1080 H420 Z" fill="rgba(13,50,56,0.55)" stroke={C.pale} strokeWidth={8} strokeLinejoin="round" />
@@ -195,9 +195,12 @@ export const FruitFiber: React.FC = () => (
       Easy to drink quickly
     </Text>
 
-    <Note y={1490} from={10}>
+    <Text y={1490} size={30} from={10} out={[B.glass - 8, B.glass + 2]} color={C.muted} weight={400}>
       Illustration • pulp shown, not a fiber measurement
-    </Note>
+    </Text>
+    <Text y={1490} size={30} from={B.glass + 4} color={C.muted} weight={400}>
+      Illustration • not an exact number of fruits per glass
+    </Text>
   </Stage>
 );
 
