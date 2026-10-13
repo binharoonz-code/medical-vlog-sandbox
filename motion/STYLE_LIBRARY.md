@@ -12,7 +12,19 @@ only the approved R2 text. All are illustrations, not to scale.
 | D | Paper cut-out: layered paper with soft shadows | paper cut-out 9:16 prompts (e.g. `x4b47x-034026`, `jrayon-054015`) |
 | E | Microscope glow: dark lens, glowing particles, labelled leaders | scientific canvas explainers (e.g. `rashadmirza404-020971`, `cagrimbakirci-842869`) |
 
-Render: `node scripts/render.mjs videos STYLE-Picker STYLE-B-Kinetic STYLE-C-Whiteboard STYLE-D-Paper STYLE-E-Microscope`
+## Round 2 — variations on A and B (AG liked both, 13 Oct 2026)
+
+| Option | Look |
+|---|---|
+| F | 3D + kinetic hybrid: big words slam over the 3D models, which then move aside |
+| G | Versus split: virus half vs bacteria half, with ✓ / ✗ verdict stamps |
+| H | Cinematic 3D: camera pushes in and out, letterbox, quiet captions |
+| I | Kinetic captions: word-by-word captions over the presenter area (for HeyGen layering) |
+| J | Colour-block wipes: kinetic words on sliding brand-colour panels |
+
+Render: `node scripts/render.mjs videos STYLE-Picker2 STYLE-F-Hybrid STYLE-G-Versus STYLE-H-Cinematic STYLE-I-Captions STYLE-J-Blocks`
+
+Round 1 render: `node scripts/render.mjs videos STYLE-Picker STYLE-B-Kinetic STYLE-C-Whiteboard STYLE-D-Paper STYLE-E-Microscope`
 
 ## Prompt source
 

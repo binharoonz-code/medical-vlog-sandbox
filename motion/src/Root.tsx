@@ -7,6 +7,7 @@ import {SUGAR_FRAMES, SUGAR_OVERLAY_FRAMES, SugarEndOverlay, SugarMolasses} from
 import {FRUIT_FRAMES, FruitFiber} from './fruit/Fiber';
 import {ARABIC_FRAMES, ArabicShapingTest} from './arabic/ShapingTest';
 import {PICKER_H, PICKER_W, STYLE_FRAMES, StyleKinetic, StyleMicroscope, StylePaper, StylePicker, StyleWhiteboard} from './styles/Styles';
+import {CAPTION_FRAMES, StyleBlocks, StyleCaptions, StyleCinematic, StyleHybrid, StyleVersus} from './styles/StylesAB';
 
 const PANELS = [
   {label: 'A', name: 'R2 teal 3D', Comp: Microbiology},
@@ -16,6 +17,15 @@ const PANELS = [
   {label: 'E', name: 'Microscope glow', Comp: StyleMicroscope},
 ];
 const Picker: React.FC = () => <StylePicker panels={PANELS} />;
+
+const PANELS2 = [
+  {label: 'F', name: '3D + kinetic', Comp: StyleHybrid},
+  {label: 'G', name: 'Versus split', Comp: StyleVersus},
+  {label: 'H', name: 'Cinematic 3D', Comp: StyleCinematic},
+  {label: 'I', name: 'Kinetic captions', Comp: StyleCaptions},
+  {label: 'J', name: 'Colour blocks', Comp: StyleBlocks},
+];
+const Picker2: React.FC = () => <StylePicker panels={PANELS2} />;
 
 const scenes = {AfterBecause, Microbiology, Risks, Qualification, Closing};
 
@@ -55,6 +65,12 @@ export const RemotionRoot: React.FC = () => (
       <Composition id="STYLE-C-Whiteboard" component={StyleWhiteboard} durationInFrames={STYLE_FRAMES} {...common} />
       <Composition id="STYLE-D-Paper" component={StylePaper} durationInFrames={STYLE_FRAMES} {...common} />
       <Composition id="STYLE-E-Microscope" component={StyleMicroscope} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-Picker2" component={Picker2} durationInFrames={STYLE_FRAMES} fps={FPS} width={PICKER_W} height={PICKER_H} />
+      <Composition id="STYLE-F-Hybrid" component={StyleHybrid} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-G-Versus" component={StyleVersus} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-H-Cinematic" component={StyleCinematic} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-I-Captions" component={StyleCaptions} durationInFrames={CAPTION_FRAMES} {...common} />
+      <Composition id="STYLE-J-Blocks" component={StyleBlocks} durationInFrames={STYLE_FRAMES} {...common} />
     </Folder>
     <Folder name="Tests">
       <Composition id="TEST-ArabicShaping" component={ArabicShapingTest} durationInFrames={ARABIC_FRAMES} {...common} />

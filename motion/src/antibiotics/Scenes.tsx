@@ -16,7 +16,7 @@ import {Note, Stage, Text, usePop} from '../ui';
 
 // ---------- 3D models (geometry kept from the R2 source) ----------
 
-const Virus: React.FC = () => {
+export const Virus: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <group rotation={[0.14, frame / 180, 0.08]}>
@@ -47,7 +47,7 @@ const Virus: React.FC = () => {
   );
 };
 
-const Bacterium: React.FC<{wallFrom: number}> = ({wallFrom}) => {
+export const Bacterium: React.FC<{wallFrom: number}> = ({wallFrom}) => {
   const frame = useCurrentFrame();
   const glow = interpolate(frame, [wallFrom, wallFrom + 16, wallFrom + 73, wallFrom + 113], [0, 0.8, 0.8, 0.15], clamp);
   return (

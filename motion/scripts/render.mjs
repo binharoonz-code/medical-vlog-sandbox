@@ -30,6 +30,9 @@ const STILLS = {
   'TEST-ArabicShaping': [145],
   'STYLE-Picker': [40, 100, 140],
   'STYLE-E-Microscope': [140],
+  'STYLE-Picker2': [40, 100, 140],
+  'STYLE-F-Hybrid': [40, 140],
+  'STYLE-H-Cinematic': [100, 145],
 };
 const VIDEOS = ['AB-GraphicsReel', 'SUGAR-Molasses', 'FRUIT-Fiber', 'TEST-ArabicShaping'];
 
