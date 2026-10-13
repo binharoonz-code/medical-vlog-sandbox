@@ -16,13 +16,13 @@ import {Bacterium, Virus} from '../antibiotics/Scenes';
 const S = {virus: 0, bacteria: 60, close: 115};
 const bg = `radial-gradient(circle at 50% 40%, ${C.panel} 0%, ${C.bg} 55%, ${C.bgDeep} 100%)`;
 
-const useSpr = (from: number, damping = 11) => {
+export const useSpr = (from: number, damping = 11) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   return spring({frame: f - from, fps, config: {damping, stiffness: 170, mass: 0.7}});
 };
 
-const Word: React.FC<{text: string; y: number; size: number; from: number; out?: number; color?: string; weight?: number}> = ({
+export const Word: React.FC<{text: string; y: number; size: number; from: number; out?: number; color?: string; weight?: number}> = ({
   text, y, size, from, out = 9999, color = C.pale, weight = 800,
 }) => {
   const f = useCurrentFrame();
@@ -37,7 +37,7 @@ const Word: React.FC<{text: string; y: number; size: number; from: number; out?:
   );
 };
 
-const Lights: React.FC = () => (
+export const Lights: React.FC = () => (
   <>
     <ambientLight intensity={1.05} />
     <directionalLight position={[-3, 5, 6]} intensity={2.5} color="#dfefec" />
@@ -80,7 +80,7 @@ export const StyleHybrid: React.FC = () => {
 
 // ===================== G · Versus split =====================
 
-const Verdict: React.FC<{ok: boolean; x: number; y: number; from: number}> = ({ok, x, y, from}) => {
+export const Verdict: React.FC<{ok: boolean; x: number; y: number; from: number}> = ({ok, x, y, from}) => {
   const p = useSpr(from, 9);
   const col = ok ? C.teal : C.coral;
   return (

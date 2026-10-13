@@ -7,6 +7,7 @@ import {SUGAR_FRAMES, SUGAR_OVERLAY_FRAMES, SugarEndOverlay, SugarMolasses} from
 import {FRUIT_FRAMES, FruitFiber} from './fruit/Fiber';
 import {ARABIC_FRAMES, ArabicShapingTest} from './arabic/ShapingTest';
 import {PICKER_H, PICKER_W, STYLE_FRAMES, StyleKinetic, StyleMicroscope, StylePaper, StylePicker, StyleWhiteboard} from './styles/Styles';
+import {StyleDiagonal, StyleOrbit, StylePunch, StyleShowdown, StyleSplitKinetic} from './styles/StylesFG';
 import {CAPTION_FRAMES, StyleBlocks, StyleCaptions, StyleCinematic, StyleHybrid, StyleVersus} from './styles/StylesAB';
 
 const PANELS = [
@@ -26,6 +27,15 @@ const PANELS2 = [
   {label: 'J', name: 'Colour blocks', Comp: StyleBlocks},
 ];
 const Picker2: React.FC = () => <StylePicker panels={PANELS2} />;
+
+const PANELS3 = [
+  {label: 'K', name: 'Split + kinetic', Comp: StyleSplitKinetic},
+  {label: 'L', name: 'Diagonal swipe', Comp: StyleDiagonal},
+  {label: 'M', name: 'Orbit parallax', Comp: StyleOrbit},
+  {label: 'N', name: 'Showdown cards', Comp: StyleShowdown},
+  {label: 'O', name: 'Punch edit', Comp: StylePunch},
+];
+const Picker3: React.FC = () => <StylePicker panels={PANELS3} />;
 
 const scenes = {AfterBecause, Microbiology, Risks, Qualification, Closing};
 
@@ -71,6 +81,12 @@ export const RemotionRoot: React.FC = () => (
       <Composition id="STYLE-H-Cinematic" component={StyleCinematic} durationInFrames={STYLE_FRAMES} {...common} />
       <Composition id="STYLE-I-Captions" component={StyleCaptions} durationInFrames={CAPTION_FRAMES} {...common} />
       <Composition id="STYLE-J-Blocks" component={StyleBlocks} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-Picker3" component={Picker3} durationInFrames={STYLE_FRAMES} fps={FPS} width={PICKER_W} height={PICKER_H} />
+      <Composition id="STYLE-K-SplitKinetic" component={StyleSplitKinetic} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-L-Diagonal" component={StyleDiagonal} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-M-Orbit" component={StyleOrbit} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-N-Showdown" component={StyleShowdown} durationInFrames={STYLE_FRAMES} {...common} />
+      <Composition id="STYLE-O-Punch" component={StylePunch} durationInFrames={STYLE_FRAMES} {...common} />
     </Folder>
     <Folder name="Tests">
       <Composition id="TEST-ArabicShaping" component={ArabicShapingTest} durationInFrames={ARABIC_FRAMES} {...common} />

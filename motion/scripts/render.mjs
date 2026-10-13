@@ -33,6 +33,7 @@ const STILLS = {
   'STYLE-Picker2': [40, 100, 140],
   'STYLE-F-Hybrid': [40, 140],
   'STYLE-H-Cinematic': [100, 145],
+  'STYLE-Picker3': [40, 100, 140],
 };
 const VIDEOS = ['AB-GraphicsReel', 'SUGAR-Molasses', 'FRUIT-Fiber', 'TEST-ArabicShaping'];
 

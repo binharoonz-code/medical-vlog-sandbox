@@ -24,6 +24,18 @@ only the approved R2 text. All are illustrations, not to scale.
 
 Render: `node scripts/render.mjs videos STYLE-Picker2 STYLE-F-Hybrid STYLE-G-Versus STYLE-H-Cinematic STYLE-I-Captions STYLE-J-Blocks`
 
+## Round 3 — variations on F and G (AG's top two, 13 Oct 2026)
+
+| Option | Look |
+|---|---|
+| K | Split + kinetic: G's virus/bacteria halves with F's slamming words in each half, closing banner |
+| L | Diagonal swipe: full-frame virus, diagonal wipe to bacteria, ends on a diagonal split with ✗ / ✓ |
+| M | Orbit parallax: camera orbits the 3D models behind kinetic words for depth |
+| N | Showdown cards: two framed cards; the antibiotic hits the bacteria and bounces off the virus |
+| O | Punch edit: F with hard cuts, zoom punches and flash frames |
+
+Render: `node scripts/render.mjs videos STYLE-Picker3 STYLE-K-SplitKinetic STYLE-L-Diagonal STYLE-M-Orbit STYLE-N-Showdown STYLE-O-Punch`
+
 Round 1 render: `node scripts/render.mjs videos STYLE-Picker STYLE-B-Kinetic STYLE-C-Whiteboard STYLE-D-Paper STYLE-E-Microscope`
 
 ## Prompt source
