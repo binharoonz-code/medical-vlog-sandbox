@@ -28,13 +28,17 @@ const STILLS = {
   'SUGAR-EndOverlay': [60],
   'FRUIT-Fiber': [95, 270, 455],
   'TEST-ArabicShaping': [145],
+  'STYLE-Picker': [40, 100, 140],
+  'STYLE-E-Microscope': [140],
 };
 const VIDEOS = ['AB-GraphicsReel', 'SUGAR-Molasses', 'FRUIT-Fiber', 'TEST-ArabicShaping'];
 
 const [mode = 'stills', ...ids] = process.argv.slice(2);
+const only = mode === 'stills' && ids.length ? new Set(ids) : null;
 
 if (mode === 'stills') {
   for (const [id, frames] of Object.entries(STILLS)) {
+    if (only && !only.has(id)) continue;
     const composition = await comp(id);
     for (const frame of frames) {
       const output = path.join(out, 'stills', `${id}-f${frame}.png`);

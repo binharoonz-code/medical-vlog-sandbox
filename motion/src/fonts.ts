@@ -7,3 +7,6 @@ for (const weight of ['400', '600', '700']) {
   loadFont({family: 'AGLatin', url: staticFile(`fonts/plex-latin-${weight}.woff2`), weight});
   loadFont({family: 'AGArabic', url: staticFile(`fonts/plex-arabic-${weight}.woff2`), weight});
 }
+
+// Handwriting face for the whiteboard style (Caveat, SIL OFL).
+loadFont({family: 'AGHand', url: staticFile('fonts/caveat-700.woff2'), weight: '700'});
