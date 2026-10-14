@@ -2,7 +2,8 @@
 # Convert rendered samples to standard delivery format and write a receipt:
 # H.264 High, yuv420p limited (TV) range, BT.709 tags, +faststart for phones.
 # Graphics-only samples are written silent; renders with a film underneath keep
-# its soundtrack (copied as is).
+# its soundtrack. Set AUDIO_FROM=<film> to take the film's original audio track
+# bit for bit instead of the render's re-encoded copy.
 # Usage: scripts/finalize.sh [out/BURN-*.mp4 ...]   (default out/*.mp4, writes out/deliver/)
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -15,7 +16,9 @@ for src in "${srcs[@]}"; do
   dst="out/deliver/${name}_1080x1920.mp4"
   audio=(-an)
   if ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$src" | grep -q .; then audio=(-c:a copy); fi
-  ffmpeg -loglevel error -y -i "$src" \
+  inputs=(-i "$src"); maps=()
+  if [ -n "${AUDIO_FROM:-}" ]; then inputs+=(-i "$AUDIO_FROM"); maps=(-map 0:v:0 -map 1:a:0); audio=(-c:a copy); fi
+  ffmpeg -loglevel error -y "${inputs[@]}" "${maps[@]}" \
     -vf "scale=in_range=full:out_range=tv,format=yuv420p" \
     -c:v libx264 -profile:v high -preset slow -crf 18 \
     -color_primaries bt709 -color_trc bt709 -colorspace bt709 -color_range tv \
