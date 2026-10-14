@@ -1,12 +1,14 @@
-// Burn first aid — K/L/M/N/O motion-graphic overlays for the approved R7 film.
+// Burn first aid — K/L/M/N/O motion-graphic overlays for the approved burn film.
 //
 // The film (AG presenter + accepted B-roll) stays untouched underneath; these
 // layers add graphics at the speech cues. On-screen text uses only phrases from
 // the approved 100-word burn speech (locked speech, R5 receipt: 100 words,
 // 36.36 s, 165 WPM).
 //
-// Cue times below are ESTIMATES from word position at 165 WPM. When the film is
-// available, scripts/burn-cues.mjs retimes them from the measured audio.
+// Cue times are MEASURED from the Burn R5 film audio (2026-10-14): the locked
+// speech was force-aligned to the soundtrack word by word (PocketSphinx) and
+// cross-checked against ffmpeg silencedetect pauses. Each cue opens on its first
+// spoken word and holds until the next cue's first word.
 
 import React from 'react';
 import {AbsoluteFill, Easing, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
@@ -15,22 +17,19 @@ import {C, FPS} from '../theme';
 export type Cue = {id: string; start: number; end: number; title: string; sub?: string; ok?: boolean; icon: IconName};
 type IconName = 'tap' | 'clock' | 'ice' | 'ring' | 'warm' | 'dressing' | 'alert';
 
-const WPS = 165 / 60; // words per second
-const at = (word: number) => +(word / WPS).toFixed(2); // start time of the nth word (0-based)
-
-// Word indices (0-based) from the locked speech.
+// [start, end] in seconds, from the measured word timings.
 export const BURN_CUES: Cue[] = [
-  {id: 'cool', start: at(15), end: at(25), title: 'Cool running water', sub: 'Twenty minutes — not hot, not ice-cold', ok: true, icon: 'tap'},
-  {id: 'start', start: at(25), end: at(40), title: 'Start immediately', sub: 'Cooling can help even within three hours', ok: true, icon: 'clock'},
-  {id: 'ice', start: at(40), end: at(53), title: 'No ice', sub: 'Even wrapped in a cloth', ok: false, icon: 'ice'},
-  {id: 'rings', start: at(53), end: at(63), title: 'Remove nearby rings and jewellery', sub: 'Before swelling makes them tight', ok: true, icon: 'ring'},
-  {id: 'fabric', start: at(63), end: at(72), title: 'Don’t force anything off', sub: 'Leave stuck clothing alone', ok: false, icon: 'ring'},
-  {id: 'warm', start: at(72), end: at(79), title: 'Keep the rest of the body warm', ok: true, icon: 'warm'},
-  {id: 'dressing', start: at(79), end: at(90), title: 'Cover the burn loosely', sub: 'Clean, non-stick dressing', ok: true, icon: 'dressing'},
-  {id: 'assess', start: at(90), end: at(100) + 0.3, title: 'Urgent assessment', sub: 'Deep, large, or hand and face burns', icon: 'alert'},
+  {id: 'cool', start: 5.43, end: 8.72, title: 'Cool running water', sub: 'Twenty minutes — not hot, not ice-cold', ok: true, icon: 'tap'}, // "Cool running water…"
+  {id: 'start', start: 8.72, end: 14.49, title: 'Start immediately', sub: 'Cooling can help even within three hours', ok: true, icon: 'clock'}, // "Start immediately…"
+  {id: 'ice', start: 14.49, end: 19.1, title: 'No ice', sub: 'Even wrapped in a cloth', ok: false, icon: 'ice'}, // "No ice…"
+  {id: 'rings', start: 19.1, end: 22.83, title: 'Remove nearby rings and jewellery', sub: 'Before swelling makes them tight', ok: true, icon: 'ring'}, // "Remove nearby rings…"
+  {id: 'fabric', start: 22.83, end: 26.1, title: 'Don’t force anything off', sub: 'Leave stuck clothing alone', ok: false, icon: 'ring'}, // "Don't force anything off…"
+  {id: 'warm', start: 26.1, end: 27.92, title: 'Keep the rest of the body warm', ok: true, icon: 'warm'}, // "Keep the rest…"
+  {id: 'dressing', start: 27.92, end: 32.4, title: 'Cover the burn loosely', sub: 'Clean, non-stick dressing', ok: true, icon: 'dressing'}, // "After cooling, cover…"
+  {id: 'assess', start: 32.4, end: 36.36, title: 'Urgent assessment', sub: 'Deep, large, or hand and face burns', icon: 'alert'}, // "Deep, large…" to film end
 ];
 
-export const BURN_SECONDS = 36.4;
+export const BURN_SECONDS = 36.36; // Burn R5 film: 909 frames at 25 fps
 export const BURN_FRAMES = Math.round(BURN_SECONDS * FPS);
 
 const useCue = (cues: Cue[]) => {

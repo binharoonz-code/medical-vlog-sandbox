@@ -38,9 +38,9 @@ const PANELS3 = [
 ];
 const Picker3: React.FC = () => <StylePicker panels={PANELS3} />;
 
-// Burn R7 film + each style overlay. Set BURN_SRC to the film's file name in
-// public/ once it is available; without it a placeholder stands in.
-const BURN_SRC: string | undefined = undefined;
+// Burn film + each style overlay. BURN_SRC names the film in public/ (local only,
+// never committed); without it a placeholder stands in.
+const BURN_SRC: string | undefined = 'burn_r5.mp4';
 const burnStyles = {K: BurnK, L: BurnL, M: BurnM, N: BurnN, O: BurnO};
 
 const scenes = {AfterBecause, Microbiology, Risks, Qualification, Closing};

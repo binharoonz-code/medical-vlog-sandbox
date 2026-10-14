@@ -38,6 +38,22 @@ Render: `node scripts/render.mjs videos STYLE-Picker3 STYLE-K-SplitKinetic STYLE
 
 Round 1 render: `node scripts/render.mjs videos STYLE-Picker STYLE-B-Kinetic STYLE-C-Whiteboard STYLE-D-Paper STYLE-E-Microscope`
 
+## K–O on a real film — Burn (14 Oct 2026)
+
+`src/burn/BurnOverlays.tsx` lays each of K, L, M, N and O over the Burn R5
+review film (36.36 s, 909 frames). The film stays untouched underneath, with
+its own soundtrack.
+
+The cue times were measured from the film audio, not estimated. The locked
+100-word speech was force-aligned to the soundtrack word by word with
+PocketSphinx and checked against ffmpeg `silencedetect` pauses.
+
+The film is not in this public repo. To render:
+
+1. Put the film at `public/burn_r5.mp4` (`public/*.mp4` is gitignored).
+2. Run `node scripts/render.mjs videos BURN-K BURN-L BURN-M BURN-N BURN-O`.
+3. Run `scripts/finalize.sh out/BURN-*.mp4`.
+
 ## Prompt source
 
 Reference prompts: [yihui-dev/awesome-opus5-5-videos](https://github.com/yihui-dev/awesome-opus5-5-videos)
