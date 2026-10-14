@@ -34,6 +34,11 @@ const STILLS = {
   'STYLE-F-Hybrid': [40, 140],
   'STYLE-H-Cinematic': [100, 145],
   'STYLE-Picker3': [40, 100, 140],
+  'BURN-K': [180, 400, 520],
+  'BURN-L': [180, 520],
+  'BURN-M': [180, 520],
+  'BURN-N': [520, 860],
+  'BURN-O': [180, 400],
 };
 const VIDEOS = ['AB-GraphicsReel', 'SUGAR-Molasses', 'FRUIT-Fiber', 'TEST-ArabicShaping'];
 

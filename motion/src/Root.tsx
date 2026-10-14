@@ -7,6 +7,7 @@ import {SUGAR_FRAMES, SUGAR_OVERLAY_FRAMES, SugarEndOverlay, SugarMolasses} from
 import {FRUIT_FRAMES, FruitFiber} from './fruit/Fiber';
 import {ARABIC_FRAMES, ArabicShapingTest} from './arabic/ShapingTest';
 import {PICKER_H, PICKER_W, STYLE_FRAMES, StyleKinetic, StyleMicroscope, StylePaper, StylePicker, StyleWhiteboard} from './styles/Styles';
+import {BURN_FRAMES, BurnFilm, BurnK, BurnL, BurnM, BurnN, BurnO} from './burn/BurnOverlays';
 import {StyleDiagonal, StyleOrbit, StylePunch, StyleShowdown, StyleSplitKinetic} from './styles/StylesFG';
 import {CAPTION_FRAMES, StyleBlocks, StyleCaptions, StyleCinematic, StyleHybrid, StyleVersus} from './styles/StylesAB';
 
@@ -36,6 +37,11 @@ const PANELS3 = [
   {label: 'O', name: 'Punch edit', Comp: StylePunch},
 ];
 const Picker3: React.FC = () => <StylePicker panels={PANELS3} />;
+
+// Burn R7 film + each style overlay. Set BURN_SRC to the film's file name in
+// public/ once it is available; without it a placeholder stands in.
+const BURN_SRC: string | undefined = undefined;
+const burnStyles = {K: BurnK, L: BurnL, M: BurnM, N: BurnN, O: BurnO};
 
 const scenes = {AfterBecause, Microbiology, Risks, Qualification, Closing};
 
@@ -87,6 +93,11 @@ export const RemotionRoot: React.FC = () => (
       <Composition id="STYLE-M-Orbit" component={StyleOrbit} durationInFrames={STYLE_FRAMES} {...common} />
       <Composition id="STYLE-N-Showdown" component={StyleShowdown} durationInFrames={STYLE_FRAMES} {...common} />
       <Composition id="STYLE-O-Punch" component={StylePunch} durationInFrames={STYLE_FRAMES} {...common} />
+    </Folder>
+    <Folder name="Burn-R7">
+      {Object.entries(burnStyles).map(([k, Ov]) => (
+        <Composition key={k} id={`BURN-${k}`} component={() => <BurnFilm overlay={Ov} src={BURN_SRC} />} durationInFrames={BURN_FRAMES} {...common} />
+      ))}
     </Folder>
     <Folder name="Tests">
       <Composition id="TEST-ArabicShaping" component={ArabicShapingTest} durationInFrames={ARABIC_FRAMES} {...common} />
