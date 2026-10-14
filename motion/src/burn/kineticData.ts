@@ -6,7 +6,7 @@
 // silencedetect pauses. "ice-cold" and "non-stick" are two aligned words each,
 // hence 102 entries.
 //
-// SHOTS: the film's cuts (ffmpeg scene detection) and, for each shot, the free
+// SHOTS: the film's cuts (ffmpeg scene detection, threshold 0.12) and, for each shot, the free
 // area where words may sit without covering the presenter's face or the
 // action in the B-roll. Icons only appear on presenter shots, in the dark
 // background beside the head.
@@ -55,13 +55,19 @@ export const SHOTS: Shot[] = [
   {from: 2.12, to: 5.48, name: 'presenter', presenter: true, text: PRESENTER},
   // tap and water centre-left, hands low: free wall on the right
   {from: 5.48, to: 6.96, name: 'tap', presenter: false, text: {x: 600, y: 380, w: 400, h: 700, align: 'right', valign: 'top', max: 130}},
-  {from: 6.96, to: 19.48, name: 'presenter', presenter: true, text: PRESENTER},
+  {from: 6.96, to: 14.56, name: 'presenter', presenter: true, text: PRESENTER},
+  // ice tray fills the lower half, hand from the right: words on the blurred jars above
+  {from: 14.56, to: 15.12, name: 'icetray', presenter: false, text: {x: 60, y: 340, w: 900, h: 360, align: 'center', valign: 'center', max: 160}},
+  {from: 15.12, to: 19.48, name: 'presenter', presenter: true, text: PRESENTER},
   // fingers and ring fill the middle: words go low, on the shirt
   {from: 19.48, to: 20.88, name: 'ring', presenter: false, text: {x: 70, y: 1440, w: 940, h: 260, align: 'center', valign: 'center', max: 140}},
   {from: 20.88, to: 24.44, name: 'presenter', presenter: true, text: PRESENTER},
   // arm on the right: free blurred kitchen on the upper left
   {from: 24.44, to: 25.72, name: 'sleeve', presenter: false, text: {x: 50, y: 380, w: 400, h: 560, align: 'left', valign: 'top', max: 120}},
-  {from: 25.72, to: 29.0, name: 'presenter', presenter: true, text: PRESENTER},
+  {from: 25.72, to: 26.88, name: 'presenter', presenter: true, text: PRESENTER},
+  // hands under the tap low, towel and woman on the right: words on the wall upper left
+  {from: 26.88, to: 27.48, name: 'warm', presenter: false, text: {x: 110, y: 350, w: 460, h: 620, align: 'left', valign: 'top', max: 130}},
+  {from: 27.48, to: 29.0, name: 'presenter', presenter: true, text: PRESENTER},
   // hands and dressing low-centre: words on the upper-left wall
   {from: 29.0, to: 30.08, name: 'dressing', presenter: false, text: {x: 50, y: 370, w: 560, h: 480, align: 'left', valign: 'top', max: 130}},
   {from: 30.08, to: 34.96, name: 'presenter', presenter: true, text: PRESENTER},
@@ -72,39 +78,41 @@ export const SHOTS: Shot[] = [
 export const shotAt = (t: number) => SHOTS.find((s) => t >= s.from && t < s.to) ?? SHOTS[SHOTS.length - 1];
 
 // Accent markers: *word* teal, !word! coral (don't / danger), ^word^ gold (warm, time).
+// A {fx} suffix makes a visual burst out of that word as it is spoken.
 export type Accent = 'teal' | 'coral' | 'gold' | null;
+export type Fx = 'drops' | 'shards' | 'flames' | 'stars' | 'heat' | 'rings' | 'cracks' | 'streaks' | 'ticks' | 'squeeze' | 'stop';
 const GROUP_SRC = [
-  'What’s|the *best*|thing to do',
+  'What’s|the *best*{stars}|thing to do',
   'in this|*situation?*',
-  '*First,*',
-  'act !fast.!',
-  'Open the|*tap.*',
-  '*Cool*|running|water',
-  'for|^twenty^|^minutes^',
-  'not !hot,!|not *ice-cold.*',
-  '*Start*|immediately.',
-  'A minute|has passed?',
-  'Still|*start.*',
-  'Cooling|can help',
-  'even within|^three^ ^hours.^',
-  '!No! !ice!',
+  '*First,*{stars}',
+  'act !fast.!{streaks}',
+  'Open the|*tap.*{drops}',
+  '*Cool*{drops}|running|*water*{drops}',
+  'for|^twenty^|^minutes^{ticks}',
+  'not !hot,!{flames}|not *ice-cold.*{shards}',
+  '*Start*{stars}|immediately.{streaks}',
+  'A minute{ticks}|has passed?',
+  'Still|*start.*{stars}',
+  '*Cooling*{drops}|can help',
+  'even within|^three^ ^hours.^{ticks}',
+  '!No!{stop} !ice!{shards}',
   'even wrapped|in a cloth.',
-  'It can !damage!|the skin further.',
-  '*Remove*|nearby rings',
-  'and|*jewellery*',
-  'before swelling|makes them !tight.!',
-  '!Don’t! force|anything off,',
+  'It can !damage!{cracks}|the skin further.',
+  '*Remove*{streaks}|nearby ^rings^{stars}',
+  'and|^jewellery^{stars}',
+  'before swelling|makes them !tight.!{squeeze}',
+  '!Don’t!{stop} force|anything off,',
   'and leave|stuck|clothing|alone.',
-  'Keep the rest|of the body|^warm.^',
+  'Keep the rest|of the body|^warm.^{heat}',
   'After|cooling,',
   '*Cover* the burn|loosely',
-  'with a clean,|*non-stick*|dressing.',
-  '!Deep,! !large,!',
+  'with a clean,{stars}|*non-stick*|dressing.',
+  '!Deep,!{rings} !large,!{rings}',
   'or hand and face|burns',
-  'need !urgent!|assessment.',
+  'need !urgent!{rings}|assessment.',
 ];
 
-export type Token = {text: string; accent: Accent; start: number; end: number; word: number};
+export type Token = {text: string; accent: Accent; fx: Fx | null; start: number; end: number; word: number};
 export type Group = {lines: Token[][]; start: number; end: number; index: number};
 
 const norm = (s: string) => s.toLowerCase().replace(/’/g, "'").replace(/[^a-z']/g, '');
@@ -113,7 +121,10 @@ const parse = (): Group[] => {
   let w = 0;
   const groups: Group[] = GROUP_SRC.map((src, index) => {
     const lines = src.split('|').map((line) =>
-      line.split(' ').map((raw) => {
+      line.split(' ').map((rawFx) => {
+        const fxm = rawFx.match(/^(.*)\{(\w+)\}$/);
+        const raw = fxm ? fxm[1] : rawFx;
+        const fx = (fxm ? fxm[2] : null) as Fx | null;
         const m = raw.match(/^([*!^])(.*)\1$/);
         const text = m ? m[2] : raw;
         const accent: Accent = m ? ({'*': 'teal', '!': 'coral', '^': 'gold'} as const)[m[1] as '*' | '!' | '^'] : null;
@@ -124,7 +135,7 @@ const parse = (): Group[] => {
             throw new Error(`On-screen word "${p}" does not match spoken word ${w + i + 1} "${spoken[i]?.[0]}"`);
           }
         });
-        const tok: Token = {text, accent, start: spoken[0][1], end: spoken[spoken.length - 1][2], word: w};
+        const tok: Token = {text, accent, fx, start: spoken[0][1], end: spoken[spoken.length - 1][2], word: w};
         w += parts.length;
         return tok;
       }),

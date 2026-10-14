@@ -12,6 +12,7 @@ import {measureText} from '@remotion/layout-utils';
 import {C, FPS} from '../theme';
 import {GROUPS, Group, ICON_BEATS, Token, Zone, shotAt} from './kineticData';
 import {MotionIcon} from './MotionIcons';
+import {WordFx} from './WordFx';
 
 export type KStyle = 'M' | 'N' | 'O';
 
@@ -102,6 +103,7 @@ const Word: React.FC<{tok: Token; size: number; style: KStyle; frame: number; k:
       }}
     >
       {tok.text.toUpperCase()}
+      {tok.fx && exit < 1 && <WordFx fx={tok.fx} lf={lf} size={size} color={color} />}
       {underline > 0 && (
         <span
           style={{
@@ -161,7 +163,10 @@ const Words: React.FC<{style: KStyle}> = ({style}) => {
 };
 
 // ---------- animated graphics ----------
-const ICON = {x: 50, y: 320, size: 340};
+const ICON = {x: 8, y: 280, size: 420};
+// Graphic jumps each time a word with a visual burst is spoken.
+const FX_TOKENS = ALL_TOKENS.filter((tok) => tok.fx || tok.accent);
+const hitAt = (frame: number) => Math.min(1, FX_TOKENS.reduce((n, tok) => n + bumpF(frame - Math.round(tok.start * FPS), 7), 0));
 const Icons: React.FC<{style: KStyle}> = ({style}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
@@ -190,7 +195,7 @@ const Icons: React.FC<{style: KStyle}> = ({style}) => {
     transform = `translate(${Math.sin(lf * 11) * 12 * shake}px, 0) scale(${(1.6 - 0.6 * p) * (1 - exit * 0.7)})`;
   }
   return (
-    <div style={{position: 'absolute', left: ICON.x, top: ICON.y, width: ICON.size, height: ICON.size, transform, filter, opacity: 1 - exit}}>
+    <div style={{position: 'absolute', left: ICON.x, top: ICON.y, width: ICON.size, height: ICON.size, transform: `${transform} scale(${1 + 0.1 * hitAt(frame)})`, filter, opacity: 1 - exit}}>
       {style === 'N' && (
         <svg width={ICON.size} height={ICON.size} style={{position: 'absolute', inset: 0}}>
           <rect x={6} y={6} width={ICON.size - 12} height={ICON.size - 12} rx={40} fill="none" stroke={C.teal} strokeWidth={4}
