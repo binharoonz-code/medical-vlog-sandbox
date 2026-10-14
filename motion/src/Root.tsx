@@ -8,8 +8,8 @@ import {FRUIT_FRAMES, FruitFiber} from './fruit/Fiber';
 import {ARABIC_FRAMES, ArabicShapingTest} from './arabic/ShapingTest';
 import {PICKER_H, PICKER_W, STYLE_FRAMES, StyleKinetic, StyleMicroscope, StylePaper, StylePicker, StyleWhiteboard} from './styles/Styles';
 import {BURN_FRAMES, BurnFilm, BurnK, BurnL, BurnM, BurnN, BurnO} from './burn/BurnOverlays';
-import {KineticFilm} from './burn/Kinetic';
-import {FILM_FRAMES} from './burn/kineticData';
+import {KineticFilm} from './kinetic/Engine';
+import {BURN} from './burn/film';
 import {StyleDiagonal, StyleOrbit, StylePunch, StyleShowdown, StyleSplitKinetic} from './styles/StylesFG';
 import {CAPTION_FRAMES, StyleBlocks, StyleCaptions, StyleCinematic, StyleHybrid, StyleVersus} from './styles/StylesAB';
 
@@ -103,7 +103,7 @@ export const RemotionRoot: React.FC = () => (
     </Folder>
     <Folder name="Burn-R5-Kinetic">
       {(['M', 'N', 'O'] as const).map((k) => (
-        <Composition key={k} id={`BURN-KIN-${k}`} component={() => <KineticFilm style={k} src={BURN_SRC} />} durationInFrames={FILM_FRAMES} {...common} />
+        <Composition key={k} id={`BURN-KIN-${k}`} component={() => <KineticFilm film={BURN} style={k} src={BURN_SRC} />} durationInFrames={BURN.frames} {...common} />
       ))}
     </Folder>
     <Folder name="Tests">
