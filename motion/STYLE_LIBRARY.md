@@ -54,6 +54,52 @@ The film is not in this public repo. To render:
 2. Run `node scripts/render.mjs videos BURN-K BURN-L BURN-M BURN-N BURN-O`.
 3. Run `scripts/finalize.sh out/BURN-*.mp4`.
 
+## Round 4 — kinetic M, N, O on the burn film (AG's picks, 14 Oct 2026)
+
+AG chose M, N and O and asked for:
+
+- more kinetic motion
+- every word moving on its own, not just appearing
+- motion graphics that act out what is said
+- no solid colour areas behind bold text
+- nothing covering the important footage
+
+Built in `src/burn/Kinetic.tsx`, `src/burn/MotionIcons.tsx` and `src/burn/kineticData.ts`:
+
+- **Every spoken word appears on its measured start time.** The word timings
+  come from force-aligning the locked speech to the film audio. The groups are
+  checked against the speech, so the render fails if the on-screen text drifts
+  from the approved words.
+- **No panels.** Text is Montserrat Black with a dark outline and shadow.
+  Accent colours carry meaning:
+  - teal: the action to take
+  - coral: don't, or danger
+  - gold: warmth or time
+- **The word being spoken lights up.**
+- **Shot-aware placement.** Each cut has a free zone, so the words move off the
+  face and the B-roll action. Graphics only show on presenter shots, beside the
+  head.
+- **Graphics act out each line.** Examples:
+  - the tap drips
+  - the thermometer goes up on "hot" and down on "ice-cold", then settles
+  - the stopwatch starts on "start"
+  - the clock sweeps three hours
+  - the ice cube gets wrapped, then crossed out, then the skin cracks on "damage"
+  - the ring slides off, then the finger swells
+  - a pull arrow gets crossed out
+  - warm waves come off the body
+  - the dressing lands loosely
+  - the hand and face pulse
+
+| Option | Word motion |
+|---|---|
+| M · Depth | Each word flies in from depth with blur; the group sways in 3D |
+| N · Showdown | Words slam in from alternating sides; key words get a drawn underline; graphic flips in inside an outline frame |
+| O · Punch | Words punch in with overshoot and shake; key words zoom-punch the whole frame with a light flash |
+
+Render with `node scripts/render.mjs videos BURN-KIN-M BURN-KIN-N BURN-KIN-O`,
+then `AUDIO_FROM=public/burn_r5.mp4 scripts/finalize.sh out/BURN-KIN-*.mp4`.
+
 ## Prompt source
 
 Reference prompts: [yihui-dev/awesome-opus5-5-videos](https://github.com/yihui-dev/awesome-opus5-5-videos)

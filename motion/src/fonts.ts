@@ -10,3 +10,8 @@ for (const weight of ['400', '600', '700']) {
 
 // Handwriting face for the whiteboard style (Caveat, SIL OFL).
 loadFont({family: 'AGHand', url: staticFile('fonts/caveat-700.woff2'), weight: '700'});
+
+// Heavy display face for word-by-word kinetic type (Montserrat, SIL OFL).
+for (const weight of ['800', '900']) {
+  loadFont({family: 'AGPunch', url: staticFile(`fonts/montserrat-latin-${weight}.woff2`), weight});
+}

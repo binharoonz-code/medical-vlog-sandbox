@@ -105,4 +105,6 @@ so no GPU is needed.
   [remotion.dev/license](https://www.remotion.dev/docs/license) before using it
   for the clinic).
 - IBM Plex Sans Arabic: SIL Open Font License, bundled in `public/fonts`.
+- Montserrat (kinetic word punches, 800/900): SIL Open Font License, bundled in
+  `public/fonts` with `OFL-LICENSE-montserrat.txt`.
 - Three.js: MIT.
