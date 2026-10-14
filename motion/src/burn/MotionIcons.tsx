@@ -1,67 +1,11 @@
-// Full-colour animated illustrations that act out what the presenter says,
-// cued to the measured word times. Sticker style: filled shapes with a dark
-// outline so they read over any background, no panel behind them. Drawn in a
-// 220x220 box centred on 0,0; each takes the current time in seconds.
+// Burn first aid — full-colour illustrations that act out each line, cued to the
+// measured word times (see kinetic/stickers.tsx for the shared building blocks).
 
 import React from 'react';
-import {Easing, interpolate, interpolateColors, spring} from 'remotion';
-import {C, FPS} from '../theme';
-import {IconId, T} from './kineticData';
-
-export const ICE = '#9fd8ff';
-const OUT = '#041417';
-const SKIN = '#e9b48f';
-const SKIN_D = '#c98d68';
-const RED = '#ff4d4d';
-const cl = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-const at = (t: number, a: number, b: number) => interpolate(t, [a, b], [0, 1], {...cl, easing: Easing.out(Easing.cubic)});
-const pop = (t: number, a: number, damping = 9) => (t < a ? 0 : spring({frame: (t - a) * FPS, fps: FPS, config: {damping, stiffness: 200, mass: 0.6}}));
-const bump = (t: number, a: number, dur = 0.25) => (t < a || t > a + dur ? 0 : Math.sin(((t - a) / dur) * Math.PI));
-const o = (w = 5) => ({stroke: OUT, strokeWidth: w, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const});
-const sc = (x: number, y: number, s: number) => `translate(${x} ${y}) scale(${s}) translate(${-x} ${-y})`;
-
-// Red "no" sign that slams on.
-const NoSign: React.FC<{x: number; y: number; r: number; p: number}> = ({x, y, r, p}) =>
-  p <= 0 ? null : (
-    <g transform={sc(x, y, 0.4 + 0.6 * p)} opacity={Math.min(1, p * 2)}>
-      <circle cx={x} cy={y} r={r} fill="none" stroke={OUT} strokeWidth={r * 0.36} />
-      <circle cx={x} cy={y} r={r} fill="none" stroke={RED} strokeWidth={r * 0.24} />
-      <line x1={x - r * 0.7} y1={y + r * 0.7} x2={x + r * 0.7} y2={y - r * 0.7} stroke={OUT} strokeWidth={r * 0.36} />
-      <line x1={x - r * 0.7} y1={y + r * 0.7} x2={x + r * 0.7} y2={y - r * 0.7} stroke={RED} strokeWidth={r * 0.24} />
-    </g>
-  );
-// Teal tick badge.
-const OkBadge: React.FC<{x: number; y: number; r: number; p: number}> = ({x, y, r, p}) =>
-  p <= 0 ? null : (
-    <g transform={sc(x, y, p)}>
-      <circle cx={x} cy={y} r={r} fill={C.teal} {...o(5)} />
-      <path d={`M${x - r * 0.45} ${y} L${x - r * 0.1} ${y + r * 0.35} L${x + r * 0.5} ${y - r * 0.35}`} fill="none" stroke={OUT} strokeWidth={r * 0.22} strokeLinecap="round" strokeLinejoin="round" />
-    </g>
-  );
-const Badge: React.FC<{x: number; y: number; p: number; fill?: string; size?: number; children: string}> = ({x, y, p, fill = C.gold, size = 34, children}) => {
-  if (p <= 0) return null;
-  const w = children.length * size * 0.78 + size; // Montserrat Black caps are ~0.78em wide
-  return (
-    <g transform={sc(x, y, p)}>
-      <rect x={x - w / 2} y={y - size * 0.75} width={w} height={size * 1.5} rx={size * 0.75} fill={fill} {...o(5)} />
-      <text x={x} y={y + size * 0.36} textAnchor="middle" fontFamily="AGPunch" fontWeight={900} fontSize={size} fill={OUT}>{children}</text>
-    </g>
-  );
-};
-const Burst: React.FC<{x: number; y: number; t: number; a: number; color: string; r?: number}> = ({x, y, t, a, color, r = 60}) => {
-  const q = at(t, a, a + 0.35);
-  if (t < a || q >= 1) return null;
-  return (
-    <g opacity={1 - q}>
-      {Array.from({length: 10}, (_, i) => {
-        const ang = (i / 10) * Math.PI * 2;
-        const r1 = r * (0.6 + q * 0.6);
-        const r2 = r * (0.9 + q * 0.9);
-        return <line key={i} x1={x + Math.cos(ang) * r1} y1={y + Math.sin(ang) * r1} x2={x + Math.cos(ang) * r2} y2={y + Math.sin(ang) * r2} stroke={color} strokeWidth={8} strokeLinecap="round" />;
-      })}
-    </g>
-  );
-};
+import {interpolate, interpolateColors} from 'remotion';
+import {C} from '../theme';
+import {T} from './kineticData';
+import {Badge, Burst, NoSign, OUT, OkBadge, RED, SKIN, SKIN_D, at, bump, cl, o, pop, sc} from '../kinetic/stickers';
 
 // ---- "First, act fast" ----
 const Fast: React.FC<{t: number}> = ({t}) => {
@@ -362,16 +306,7 @@ const Urgent: React.FC<{t: number}> = ({t}) => {
   );
 };
 
-const MAP: Record<IconId, React.FC<{t: number}>> = {
+export const BURN_ICONS: Record<string, React.FC<{t: number}>> = {
   fast: Fast, tap: Tap, thermo: Thermo, stopwatch: Stopwatch, clock3: Clock3, noice: NoIce,
   ring: Ring, noforce: NoForce, warm: Warm, dressing: Dressing, urgent: Urgent,
-};
-
-export const MotionIcon: React.FC<{id: IconId; t: number; size: number}> = ({id, t, size}) => {
-  const Comp = MAP[id];
-  return (
-    <svg width={size} height={size} viewBox="-125 -125 250 250" style={{overflow: 'visible', filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.6))'}}>
-      <Comp t={t} />
-    </svg>
-  );
 };

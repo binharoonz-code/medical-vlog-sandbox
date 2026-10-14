@@ -7,10 +7,10 @@
 import React from 'react';
 import {interpolate} from 'remotion';
 import {C} from '../theme';
-import type {Fx} from './kineticData';
+import type {Fx} from './core';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-const LIFE: Record<Fx, number> = {drops: 22, shards: 20, flames: 26, stars: 18, heat: 28, rings: 24, cracks: 16, streaks: 12, ticks: 22, squeeze: 16, stop: 18};
+const LIFE: Record<Fx, number> = {drops: 22, shards: 20, flames: 26, stars: 18, heat: 28, rings: 24, cracks: 16, streaks: 12, ticks: 22, squeeze: 16, stop: 18, smoke: 30, syrup: 24};
 const OUT = '#041417';
 // Deterministic pseudo-random in [0,1).
 const rnd = (i: number, k: number) => {
@@ -28,7 +28,7 @@ export const WordFx: React.FC<{fx: Fx; lf: number; size: number; color: string}>
   const u = size / 100; // drawing unit
   const items: React.ReactNode[] = [];
 
-  if (fx === 'drops') {
+  if (fx === 'drops' || fx === 'syrup') {
     for (let i = 0; i < 10; i++) {
       const a = -Math.PI * (0.1 + 0.8 * rnd(i, 1));
       const v = (90 + 90 * rnd(i, 2)) * u;
@@ -38,7 +38,7 @@ export const WordFx: React.FC<{fx: Fx; lf: number; size: number; color: string}>
       items.push(
         <path key={i} transform={`translate(${x} ${y}) rotate(${(a * 180) / Math.PI + 90})`}
           d={`M0 ${-s * 1.6} C${s} ${-s * 0.2} ${s} ${s} 0 ${s} C${-s} ${s} ${-s} ${-s * 0.2} 0 ${-s * 1.6} Z`}
-          fill="#6cc6ff" stroke={OUT} strokeWidth={2.5 * u} />,
+          fill={fx === 'syrup' ? '#8a4a1c' : '#6cc6ff'} stroke={OUT} strokeWidth={2.5 * u} />,
       );
     }
   } else if (fx === 'shards') {
@@ -80,6 +80,13 @@ export const WordFx: React.FC<{fx: Fx; lf: number; size: number; color: string}>
           d={`M0 ${-s} Q${s * 0.18} ${-s * 0.18} ${s} 0 Q${s * 0.18} ${s * 0.18} 0 ${s} Q${-s * 0.18} ${s * 0.18} ${-s} 0 Q${-s * 0.18} ${-s * 0.18} 0 ${-s} Z`}
           fill={color === '#ffffff' ? C.gold : color} stroke={OUT} strokeWidth={2 * u} />,
       );
+    }
+  } else if (fx === 'smoke') {
+    for (let i = 0; i < 7; i++) {
+      const x = (-150 + 50 * i + (rnd(i, 1) - 0.5) * 30) * u + Math.sin(lf * 0.25 + i) * 14 * u;
+      const y = -50 * u - (60 + 70 * rnd(i, 2)) * u * p;
+      const r = (22 + 18 * rnd(i, 3)) * u * (0.6 + 0.8 * p);
+      items.push(<circle key={i} cx={x} cy={y} r={r} fill="#c9d2d4" stroke={OUT} strokeWidth={2 * u} opacity={0.85 * (1 - p * 0.6)} />);
     }
   } else if (fx === 'heat') {
     for (let i = 0; i < 5; i++) {

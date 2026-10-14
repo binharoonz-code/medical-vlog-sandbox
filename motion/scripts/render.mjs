@@ -39,7 +39,7 @@ const STILLS = {
   'BURN-M': [175, 750],
   'BURN-N': [420, 860],
   'BURN-O': [175, 680],
-  'BURN-KIN-M': [255, 366, 375, 680, 690, 700],
+  'BURN-KIN-M': [202, 499, 761],
   'BURN-KIN-N': [122, 140, 185, 202, 222, 255, 346, 366, 380, 400, 429, 499, 538, 552, 575, 682, 725, 761, 815, 884],
   'BURN-KIN-O': [30, 95, 160, 205, 265, 345, 420, 450, 505, 545, 590, 625, 690, 745, 790, 845, 860, 895],
 };
@@ -57,6 +57,15 @@ if (mode === 'stills') {
       await renderStill({serveUrl, composition, frame, output, browserExecutable, chromiumOptions});
       console.log('still', output);
     }
+  }
+} else if (mode === 'frames') {
+  // frames <id> <frame> [frame…]: stills of any composition at the given frames
+  const [id, ...list] = ids;
+  const composition = await comp(id);
+  for (const frame of list.map(Number)) {
+    const output = path.join(out, 'stills', `${id}-f${frame}.png`);
+    await renderStill({serveUrl, composition, frame, output, browserExecutable, chromiumOptions});
+    console.log('still', output);
   }
 } else if (mode === 'videos') {
   for (const id of ids.length ? ids : VIDEOS) {

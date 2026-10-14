@@ -14,7 +14,8 @@
 // GROUPS: the speech split into on-screen groups. Words are consumed in order
 // and checked against WORDS, so on-screen text cannot drift from the speech.
 
-import {FPS} from '../theme';
+import {Fx, Shot, Zone, parseGroups} from '../kinetic/core';
+export type {Fx};
 
 export const WORDS: [string, number, number][] = [
   ['what’s', 0.32, 0.56], ['the', 0.56, 0.64], ['best', 0.64, 0.85], ['thing', 0.85, 1.04], ['to', 1.04, 1.12],
@@ -43,12 +44,9 @@ export const WORDS: [string, number, number][] = [
 export const FILM_SECONDS = 36.36;
 export const FILM_FRAMES = 909;
 
-export type Zone = {x: number; y: number; w: number; h: number; align: 'left' | 'center' | 'right'; valign: 'top' | 'center' | 'bottom'; max: number};
-
 // Presenter: face spans about x 435-780, y 255-780; black T-shirt below.
 const PRESENTER: Zone = {x: 70, y: 1010, w: 940, h: 460, align: 'center', valign: 'center', max: 170};
 
-export type Shot = {from: number; to: number; name: string; presenter: boolean; text: Zone};
 export const SHOTS: Shot[] = [
   // woman in kitchen on the right, burned-in label at the top
   {from: 0, to: 2.12, name: 'accident', presenter: false, text: {x: 60, y: 360, w: 560, h: 560, align: 'left', valign: 'top', max: 130}},
@@ -75,12 +73,9 @@ export const SHOTS: Shot[] = [
   {from: 34.96, to: FILM_SECONDS + 1, name: 'assessment', presenter: false, text: {x: 70, y: 1400, w: 940, h: 300, align: 'center', valign: 'center', max: 140}},
 ];
 
-export const shotAt = (t: number) => SHOTS.find((s) => t >= s.from && t < s.to) ?? SHOTS[SHOTS.length - 1];
 
 // Accent markers: *word* teal, !word! coral (don't / danger), ^word^ gold (warm, time).
 // A {fx} suffix makes a visual burst out of that word as it is spoken.
-export type Accent = 'teal' | 'coral' | 'gold' | null;
-export type Fx = 'drops' | 'shards' | 'flames' | 'stars' | 'heat' | 'rings' | 'cracks' | 'streaks' | 'ticks' | 'squeeze' | 'stop';
 const GROUP_SRC = [
   'What’s|the *best*{stars}|thing to do',
   'in this|*situation?*',
@@ -112,49 +107,8 @@ const GROUP_SRC = [
   'need !urgent!{rings}|assessment.',
 ];
 
-export type Token = {text: string; accent: Accent; fx: Fx | null; start: number; end: number; word: number};
-export type Group = {lines: Token[][]; start: number; end: number; index: number};
+export const GROUPS = parseGroups(WORDS, GROUP_SRC, FILM_SECONDS);
 
-const norm = (s: string) => s.toLowerCase().replace(/’/g, "'").replace(/[^a-z']/g, '');
-
-const parse = (): Group[] => {
-  let w = 0;
-  const groups: Group[] = GROUP_SRC.map((src, index) => {
-    const lines = src.split('|').map((line) =>
-      line.split(' ').map((rawFx) => {
-        const fxm = rawFx.match(/^(.*)\{(\w+)\}$/);
-        const raw = fxm ? fxm[1] : rawFx;
-        const fx = (fxm ? fxm[2] : null) as Fx | null;
-        const m = raw.match(/^([*!^])(.*)\1$/);
-        const text = m ? m[2] : raw;
-        const accent: Accent = m ? ({'*': 'teal', '!': 'coral', '^': 'gold'} as const)[m[1] as '*' | '!' | '^'] : null;
-        const parts = text.split('-');
-        const spoken = WORDS.slice(w, w + parts.length);
-        parts.forEach((p, i) => {
-          if (!spoken[i] || norm(p) !== norm(spoken[i][0])) {
-            throw new Error(`On-screen word "${p}" does not match spoken word ${w + i + 1} "${spoken[i]?.[0]}"`);
-          }
-        });
-        const tok: Token = {text, accent, fx, start: spoken[0][1], end: spoken[spoken.length - 1][2], word: w};
-        w += parts.length;
-        return tok;
-      }),
-    );
-    const flat = lines.flat();
-    return {lines, start: flat[0].start, end: flat[flat.length - 1].end, index};
-  });
-  if (w !== WORDS.length) throw new Error(`Groups cover ${w} of ${WORDS.length} spoken words`);
-  // Hold each group until the next one starts, but not through a long pause.
-  groups.forEach((g, i) => {
-    const next = groups[i + 1]?.start ?? FILM_SECONDS;
-    g.end = Math.min(next, g.end + 0.55);
-  });
-  return groups;
-};
-
-export const GROUPS = parse();
-
-export const f = (s: number) => Math.round(s * FPS);
 
 // Motion-graphic beats: what each animated icon illustrates, and when.
 export type IconId = 'fast' | 'tap' | 'thermo' | 'stopwatch' | 'clock3' | 'noice' | 'ring' | 'noforce' | 'warm' | 'dressing' | 'urgent';

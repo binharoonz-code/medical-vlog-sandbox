@@ -1,17 +1,18 @@
-// Burn R5 — word-by-word kinetic type + animated graphics, styles M, N and O.
+// Kinetic house style engine (AG, 14 Oct 2026): word-by-word kinetic type plus
+// animated illustrations, motion styles M, N and O, for any film.
 //
 // Every spoken word appears on its measured start time with its own motion.
 // No colour panels sit behind the text: legibility comes from a dark outline
-// and shadow. Words move to each shot's free area (see SHOTS) so the
-// presenter's face and the B-roll action stay clear. Graphics act out what is
-// said and only appear on presenter shots, beside the head.
+// and shadow. Words move to each shot's free area (Film.shots) so the
+// presenter's face and the B-roll action stay clear. Illustrations act out what
+// is said and only appear on presenter shots, in Film.iconBox.
 
 import React from 'react';
 import {AbsoluteFill, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {measureText} from '@remotion/layout-utils';
 import {C, FPS} from '../theme';
-import {GROUPS, Group, ICON_BEATS, Token, Zone, shotAt} from './kineticData';
-import {MotionIcon} from './MotionIcons';
+import {Film, Group, Token, Zone, shotIn} from './core';
+import {MotionIcon} from './stickers';
 import {WordFx} from './WordFx';
 
 export type KStyle = 'M' | 'N' | 'O';
@@ -26,7 +27,7 @@ const sp = (frame: number, damping: number, stiffness: number, mass = 0.6) =>
   frame < 0 ? 0 : spring({frame, fps: FPS, config: {damping, stiffness, mass}});
 const bumpF = (lf: number, dur: number) => (lf < 0 || lf > dur ? 0 : Math.sin((lf / dur) * Math.PI));
 
-const ALL_TOKENS = GROUPS.flatMap((g) => g.lines.flat());
+const tokensOf = (film: Film) => film.groups.flatMap((g) => g.lines.flat());
 
 // ---------- layout ----------
 type Line = {tokens: Token[]; size: number};
@@ -125,12 +126,12 @@ const Word: React.FC<{tok: Token; size: number; style: KStyle; frame: number; k:
 };
 
 // ---------- word groups ----------
-const Words: React.FC<{style: KStyle}> = ({style}) => {
+const Words: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
-  const g = GROUPS.find((x) => t >= x.start && t < x.end);
+  const g = film.groups.find((x) => t >= x.start && t < x.end);
   if (!g) return null;
-  const z = shotAt(t).text;
+  const z = shotIn(film.shots, t).text;
   const lines = layout(g, z);
   const endF = Math.round(g.end * FPS);
   const exit = interpolate(frame, [endF - 4, endF], [0, 1], clamp);
@@ -163,17 +164,17 @@ const Words: React.FC<{style: KStyle}> = ({style}) => {
 };
 
 // ---------- animated graphics ----------
-const ICON = {x: 8, y: 280, size: 420};
-// Graphic jumps each time a word with a visual burst is spoken.
-const FX_TOKENS = ALL_TOKENS.filter((tok) => tok.fx || tok.accent);
-const hitAt = (frame: number) => Math.min(1, FX_TOKENS.reduce((n, tok) => n + bumpF(frame - Math.round(tok.start * FPS), 7), 0));
-const Icons: React.FC<{style: KStyle}> = ({style}) => {
+// The illustration jumps each time an accented or bursting word is spoken.
+const hitAt = (film: Film, frame: number) =>
+  Math.min(1, tokensOf(film).reduce((n, tok) => (tok.fx || tok.accent ? n + bumpF(frame - Math.round(tok.start * FPS), 7) : n), 0));
+const Icons: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
-  const shot = shotAt(t);
+  const shot = shotIn(film.shots, t);
   if (!shot.presenter) return null;
-  const beat = ICON_BEATS.find((b) => t >= b.from && t < b.to);
+  const beat = film.beats.find((b) => t >= b.from && t < b.to);
   if (!beat) return null;
+  const ICON = film.iconBox;
   const lf = frame - Math.round(Math.max(beat.from, shot.from) * FPS);
   // Animate out only when the beat ends inside this shot; a cut is a hard cut.
   const endF = Math.round(beat.to * FPS);
@@ -195,27 +196,27 @@ const Icons: React.FC<{style: KStyle}> = ({style}) => {
     transform = `translate(${Math.sin(lf * 11) * 12 * shake}px, 0) scale(${(1.6 - 0.6 * p) * (1 - exit * 0.7)})`;
   }
   return (
-    <div style={{position: 'absolute', left: ICON.x, top: ICON.y, width: ICON.size, height: ICON.size, transform: `${transform} scale(${1 + 0.1 * hitAt(frame)})`, filter, opacity: 1 - exit}}>
+    <div style={{position: 'absolute', left: ICON.x, top: ICON.y, width: ICON.size, height: ICON.size, transform: `${transform} scale(${1 + 0.1 * hitAt(film, frame)})`, filter, opacity: 1 - exit}}>
       {style === 'N' && (
         <svg width={ICON.size} height={ICON.size} style={{position: 'absolute', inset: 0}}>
           <rect x={6} y={6} width={ICON.size - 12} height={ICON.size - 12} rx={40} fill="none" stroke={C.teal} strokeWidth={4}
             pathLength={1} strokeDasharray={1} strokeDashoffset={1 - frameDraw} opacity={0.85} />
         </svg>
       )}
-      <MotionIcon id={beat.id} t={t} size={ICON.size} />
+      <MotionIcon Comp={film.icons[beat.id]} t={t} size={ICON.size} zoom={ICON.zoom} />
     </div>
   );
 };
 
 // ---------- film + layers ----------
-const filmPunch = (frame: number) =>
-  ALL_TOKENS.reduce((n, tok) => (tok.accent ? n + bumpF(frame - Math.round(tok.start * FPS), 8) : n), 0);
-const flash = (frame: number) =>
-  ALL_TOKENS.some((tok) => tok.accent && frame - Math.round(tok.start * FPS) >= 0 && frame - Math.round(tok.start * FPS) < 2) ? 0.12 : 0;
+const filmPunch = (film: Film, frame: number) =>
+  tokensOf(film).reduce((n, tok) => (tok.accent ? n + bumpF(frame - Math.round(tok.start * FPS), 8) : n), 0);
+const flash = (film: Film, frame: number) =>
+  tokensOf(film).some((tok) => tok.accent && frame - Math.round(tok.start * FPS) >= 0 && frame - Math.round(tok.start * FPS) < 2) ? 0.12 : 0;
 
-export const KineticFilm: React.FC<{style: KStyle; src?: string}> = ({style, src}) => {
+export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string}> = ({film, style, src}) => {
   const frame = useCurrentFrame();
-  const punch = style === 'O' ? Math.min(1, filmPunch(frame)) : 0;
+  const punch = style === 'O' ? Math.min(1, filmPunch(film, frame)) : 0;
   return (
     <AbsoluteFill style={{background: '#0b1416'}}>
       <AbsoluteFill style={{transform: `scale(${1 + punch * 0.05})`}}>
@@ -225,9 +226,9 @@ export const KineticFilm: React.FC<{style: KStyle; src?: string}> = ({style, src
           <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 30%, #2a3a3d, #0b1416 70%)'}} />
         )}
       </AbsoluteFill>
-      <Icons style={style} />
-      <Words style={style} />
-      {style === 'O' && <AbsoluteFill style={{background: '#ffffff', opacity: flash(frame), pointerEvents: 'none'}} />}
+      <Icons film={film} style={style} />
+      <Words film={film} style={style} />
+      {style === 'O' && <AbsoluteFill style={{background: '#ffffff', opacity: flash(film, frame), pointerEvents: 'none'}} />}
     </AbsoluteFill>
   );
 };
