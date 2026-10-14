@@ -10,6 +10,15 @@ import {PICKER_H, PICKER_W, STYLE_FRAMES, StyleKinetic, StyleMicroscope, StylePa
 import {BURN_FRAMES, BurnFilm, BurnK, BurnL, BurnM, BurnN, BurnO} from './burn/BurnOverlays';
 import {KineticFilm} from './kinetic/Engine';
 import {BURN} from './burn/film';
+import type {Film} from './kinetic/core';
+
+// Previews of the locked house style on films in production. Each film's screen
+// plan (src/films/*.film.tsx) and the film itself (public/) stay local and are
+// never committed, so a clean checkout simply has no previews.
+type FilmContext = {keys(): string[]; (key: string): Record<string, unknown>};
+const filmCtx = (require as unknown as {context: (dir: string, deep: boolean, re: RegExp) => FilmContext}).context('./films', false, /\.film\.tsx$/);
+const isFilm = (v: unknown): v is Film => typeof v === 'object' && v !== null && 'groups' in v && 'shots' in v;
+const PREVIEWS: Film[] = filmCtx.keys().flatMap((k) => Object.values(filmCtx(k)).filter(isFilm));
 import {StyleDiagonal, StyleOrbit, StylePunch, StyleShowdown, StyleSplitKinetic} from './styles/StylesFG';
 import {CAPTION_FRAMES, StyleBlocks, StyleCaptions, StyleCinematic, StyleHybrid, StyleVersus} from './styles/StylesAB';
 
@@ -105,6 +114,13 @@ export const RemotionRoot: React.FC = () => (
       {(['M', 'N', 'O'] as const).map((k) => (
         <Composition key={k} id={`BURN-KIN-${k}`} component={() => <KineticFilm film={BURN} style={k} src={BURN_SRC} />} durationInFrames={BURN.frames} {...common} />
       ))}
+    </Folder>
+    <Folder name="Previews-2026-10-14">
+      {PREVIEWS.flatMap((film) =>
+        (['M', 'N'] as const).map((k) => (
+          <Composition key={`${film.id}-${k}`} id={`PREV-${film.id}-${k}`} component={() => <KineticFilm film={film} style={k} src={film.src} />} durationInFrames={film.frames} {...common} />
+        )),
+      )}
     </Folder>
     <Folder name="Tests">
       <Composition id="TEST-ArabicShaping" component={ArabicShapingTest} durationInFrames={ARABIC_FRAMES} {...common} />
