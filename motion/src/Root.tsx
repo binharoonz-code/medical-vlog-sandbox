@@ -121,6 +121,11 @@ export const RemotionRoot: React.FC = () => (
           <Composition key={`${film.id}-${k}`} id={`PREV-${film.id}-${k}`} component={() => <KineticFilm film={film} style={k} src={film.src} />} durationInFrames={film.frames} {...common} />
         )),
       )}
+      {PREVIEWS.flatMap((film) =>
+        (['M', 'N'] as const).map((k) => (
+          <Composition key={`E-${film.id}-${k}`} id={`ENERGY-${film.id}-${k}`} component={() => <KineticFilm film={film} style={k} src={film.src} energy />} durationInFrames={film.frames} {...common} />
+        )),
+      )}
     </Folder>
     <Folder name="Tests">
       <Composition id="TEST-ArabicShaping" component={ArabicShapingTest} durationInFrames={ARABIC_FRAMES} {...common} />

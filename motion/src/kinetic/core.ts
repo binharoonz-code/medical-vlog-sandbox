@@ -7,7 +7,10 @@ import {FPS} from '../theme';
 
 export type Zone = {x: number; y: number; w: number; h: number; align: 'left' | 'center' | 'right'; valign: 'top' | 'center' | 'bottom'; max: number};
 // presenter: illustrations may show on this shot (free space beside the presenter).
-export type Shot = {from: number; to: number; name: string; presenter: boolean; text: Zone};
+// focus: camera zoom origin in % of the frame (defaults: presenter face, else centre).
+export type Shot = {from: number; to: number; name: string; presenter: boolean; text: Zone; focus?: [number, number]};
+// A full-screen animated moment that covers the footage while the voice carries on.
+export type Takeover = {id: string; from: number; to: number; text: Zone};
 export type Accent = 'teal' | 'coral' | 'gold' | null;
 export type Fx = 'drops' | 'shards' | 'flames' | 'stars' | 'heat' | 'rings' | 'cracks' | 'streaks' | 'ticks' | 'squeeze' | 'stop' | 'smoke' | 'syrup';
 export type Token = {text: string; accent: Accent; fx: Fx | null; start: number; end: number; word: number};
@@ -25,7 +28,12 @@ export type Film = {
   beats: Beat[];
   icons: Record<string, React.FC<{t: number}>>;
   iconBox: {x: number; y: number; size: number; zoom?: number}; // zoom > 1 draws illustrations bigger
+  takeovers?: Takeover[];
+  scenes?: Record<string, React.FC<{t: number}>>; // full-frame 1080x1920 SVG content per takeover
 };
+
+export const takeoverAt = (film: Film, t: number) => film.takeovers?.find((k) => t >= k.from && t < k.to);
+export const zoneAt = (film: Film, t: number) => takeoverAt(film, t)?.text ?? shotIn(film.shots, t).text;
 
 export const shotIn = (shots: Shot[], t: number) => shots.find((s) => t >= s.from && t < s.to) ?? shots[shots.length - 1];
 

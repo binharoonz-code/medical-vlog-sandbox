@@ -8,10 +8,10 @@
 // is said and only appear on presenter shots, in Film.iconBox.
 
 import React from 'react';
-import {AbsoluteFill, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {measureText} from '@remotion/layout-utils';
 import {C, FPS} from '../theme';
-import {Film, Group, Token, Zone, shotIn} from './core';
+import {Film, Group, Token, Zone, shotIn, takeoverAt, zoneAt} from './core';
 import {MotionIcon} from './stickers';
 import {WordFx} from './WordFx';
 
@@ -131,7 +131,7 @@ const Words: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   const t = frame / FPS;
   const g = film.groups.find((x) => t >= x.start && t < x.end);
   if (!g) return null;
-  const z = shotIn(film.shots, t).text;
+  const z = zoneAt(film, t);
   const lines = layout(g, z);
   const endF = Math.round(g.end * FPS);
   const exit = interpolate(frame, [endF - 4, endF], [0, 1], clamp);
@@ -171,7 +171,7 @@ const Icons: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
   const shot = shotIn(film.shots, t);
-  if (!shot.presenter) return null;
+  if (!shot.presenter || takeoverAt(film, t)) return null;
   const beat = film.beats.find((b) => t >= b.from && t < b.to);
   if (!beat) return null;
   const ICON = film.iconBox;
@@ -208,26 +208,91 @@ const Icons: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   );
 };
 
+// ---------- camera, takeovers, sound (the "energy" layer) ----------
+// Punch envelope: up in 2 frames, settles over ~12.
+const punchEnv = (lf: number) => (lf < 0 || lf > 16 ? 0 : lf < 2 ? lf / 2 : Math.exp(-(lf - 2) / 4));
+const camera = (film: Film, frame: number) => {
+  const t = frame / FPS;
+  const shot = shotIn(film.shots, t);
+  const prog = Math.min(1, Math.max(0, (t - shot.from) / Math.max(0.5, shot.to - shot.from)));
+  const env = tokensOf(film).reduce((m, tok) => (tok.accent ? Math.max(m, punchEnv(frame - Math.round(tok.start * FPS))) : m), 0);
+  const scale = (1 + 0.05 * prog) * (1 + 0.12 * env);
+  const [fx, fy] = shot.focus ?? (shot.presenter ? [50, 28] : [50, 50]);
+  return {transform: `translate(${Math.sin(frame * 12.7) * 7 * env}px, ${Math.cos(frame * 10.3) * 5 * env}px) scale(${scale})`, transformOrigin: `${fx}% ${fy}%`};
+};
+
+const Takeover: React.FC<{film: Film}> = ({film}) => {
+  const frame = useCurrentFrame();
+  const t = frame / FPS;
+  const k = takeoverAt(film, t);
+  const Scene = k && film.scenes?.[k.id];
+  if (!k || !Scene) return null;
+  const a = Math.round(k.from * FPS), b = Math.round(k.to * FPS);
+  const inP = interpolate(frame, [a, a + 6], [0, 1], clamp);
+  const outP = interpolate(frame, [b - 5, b], [0, 1], clamp);
+  const flash = interpolate(frame, [a, a + 1, a + 4], [0, 0.55, 0], clamp);
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill style={{opacity: inP * (1 - outP), transform: `scale(${(1.25 - 0.25 * inP) * (1 - 0.08 * outP)})`, filter: inP < 1 ? `blur(${(1 - inP) * 14}px)` : undefined}}>
+        <svg width={1080} height={1920} viewBox="0 0 1080 1920"><Scene t={t} /></svg>
+      </AbsoluteFill>
+      <AbsoluteFill style={{background: '#ffffff', opacity: flash}} />
+    </AbsoluteFill>
+  );
+};
+
+type Cue = {at: number; src: string; volume: number};
+export const sfxCues = (film: Film): Cue[] => {
+  const cues: Cue[] = [];
+  let n = 0;
+  for (const tok of tokensOf(film)) {
+    if (tok.fx) cues.push({at: tok.start, src: n++ % 2 ? 'pop2' : 'pop', volume: 0.32});
+    else if (tok.accent) cues.push({at: tok.start, src: 'tick', volume: 0.5});
+  }
+  for (const k of film.takeovers ?? []) {
+    cues.push({at: k.from - 0.2, src: 'whoosh', volume: 0.4});
+    cues.push({at: k.from, src: 'hit', volume: 0.45});
+    cues.push({at: k.to - 0.3, src: 'whoosh_out', volume: 0.3});
+  }
+  for (const sh of film.shots.slice(1)) {
+    if (!(film.takeovers ?? []).some((k) => Math.abs(k.from - sh.from) < 0.4 || Math.abs(k.to - sh.from) < 0.4)) cues.push({at: sh.from - 0.12, src: 'whoosh', volume: 0.18});
+  }
+  return cues.filter((c) => c.at >= 0 && c.at < film.seconds);
+};
+const Sfx: React.FC<{film: Film}> = ({film}) => (
+  <>
+    {sfxCues(film).map((c, i) => (
+      <Sequence key={i} from={Math.round(c.at * FPS)} durationInFrames={Math.round(FPS * 1.2)} layout="none">
+        <Audio src={staticFile(`sfx/${c.src}.wav`)} volume={c.volume} />
+      </Sequence>
+    ))}
+  </>
+);
+
 // ---------- film + layers ----------
 const filmPunch = (film: Film, frame: number) =>
   tokensOf(film).reduce((n, tok) => (tok.accent ? n + bumpF(frame - Math.round(tok.start * FPS), 8) : n), 0);
 const flash = (film: Film, frame: number) =>
   tokensOf(film).some((tok) => tok.accent && frame - Math.round(tok.start * FPS) >= 0 && frame - Math.round(tok.start * FPS) < 2) ? 0.12 : 0;
 
-export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string}> = ({film, style, src}) => {
+// energy: camera punch-ins and slow pushes, full-screen takeovers, sound effects.
+export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string; energy?: boolean}> = ({film, style, src, energy}) => {
   const frame = useCurrentFrame();
   const punch = style === 'O' ? Math.min(1, filmPunch(film, frame)) : 0;
+  const cam = energy ? camera(film, frame) : {transform: `scale(${1 + punch * 0.05})`};
   return (
-    <AbsoluteFill style={{background: '#0b1416'}}>
-      <AbsoluteFill style={{transform: `scale(${1 + punch * 0.05})`}}>
+    <AbsoluteFill style={{background: '#0b1416', overflow: 'hidden'}}>
+      <AbsoluteFill style={cam}>
         {src ? (
           <OffthreadVideo src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
         ) : (
           <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 30%, #2a3a3d, #0b1416 70%)'}} />
         )}
       </AbsoluteFill>
+      {energy && <Takeover film={film} />}
       <Icons film={film} style={style} />
       <Words film={film} style={style} />
+      {energy && <Sfx film={film} />}
       {style === 'O' && <AbsoluteFill style={{background: '#ffffff', opacity: flash(film, frame), pointerEvents: 'none'}} />}
     </AbsoluteFill>
   );
