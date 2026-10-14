@@ -54,6 +54,20 @@ The film is not in this public repo. To render:
 2. Run `node scripts/render.mjs videos BURN-K BURN-L BURN-M BURN-N BURN-O`.
 3. Run `scripts/finalize.sh out/BURN-*.mp4`.
 
+## House style (locked by AG, 14 Oct 2026)
+
+**Kinetic words + visuals, with M or N motion.** The rest of this file is the
+history of how it was chosen. The full method is in Chief-of-Staff:
+`PROJECTS/P004_AG_MEDICAL_VLOG/CLAUDE/2026-10-14_P004_Motion_House_Style_Method_v01_CLAUDE.md`.
+
+The style has these elements:
+
+- every word moves in on its spoken time
+- key words burst
+- full-colour illustrations act out each idea
+- no panels
+- the face and the B-roll action stay clear
+
 ## Round 4 — kinetic M, N, O on the burn film (AG's picks, 14 Oct 2026)
 
 AG chose M, N and O and asked for:
