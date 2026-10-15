@@ -30,6 +30,7 @@ export type Film = {
   iconBox: {x: number; y: number; size: number; zoom?: number}; // zoom > 1 draws illustrations bigger
   takeovers?: Takeover[];
   scenes?: Record<string, React.FC<{t: number}>>; // full-frame 1080x1920 SVG content per takeover
+  scenes3d?: Record<string, React.FC<{t: number}>>; // full-frame HTML/3D alternative for the 3D look
 };
 
 export const takeoverAt = (film: Film, t: number) => film.takeovers?.find((k) => t >= k.from && t < k.to);

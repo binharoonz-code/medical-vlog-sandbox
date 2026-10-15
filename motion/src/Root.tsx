@@ -11,6 +11,7 @@ import {BURN_FRAMES, BurnFilm, BurnK, BurnL, BurnM, BurnN, BurnO} from './burn/B
 import {KineticFilm} from './kinetic/Engine';
 import {BURN} from './burn/film';
 import type {Film} from './kinetic/core';
+import {LOOKS} from './kinetic/looks';
 
 // Previews of the locked house style on films in production. Each film's screen
 // plan (src/films/*.film.tsx) and the film itself (public/) stay local and are
@@ -124,6 +125,11 @@ export const RemotionRoot: React.FC = () => (
       {PREVIEWS.flatMap((film) =>
         (['M', 'N'] as const).map((k) => (
           <Composition key={`E-${film.id}-${k}`} id={`ENERGY-${film.id}-${k}`} component={() => <KineticFilm film={film} style={k} src={film.src} energy />} durationInFrames={film.frames} {...common} />
+        )),
+      )}
+      {PREVIEWS.flatMap((film) =>
+        Object.values(LOOKS).map((look) => (
+          <Composition key={`L-${film.id}-${look.id}`} id={`LOOK-${film.id}-${look.id}`} component={() => <KineticFilm film={film} style={look.style} src={film.src} look={look} />} durationInFrames={film.frames} {...common} />
         )),
       )}
     </Folder>

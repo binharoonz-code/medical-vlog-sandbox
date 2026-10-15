@@ -1,7 +1,7 @@
 """Synthesise the house-style sound effects (original, no third-party samples).
 
 Writes 48 kHz mono 16-bit WAVs to public/sfx/: pop, pop2, whoosh, whoosh_out,
-hit, riser, tick. Run: python3 scripts/make_sfx.py
+hit, riser, tick, zap, glitch, boing. Run: python3 scripts/make_sfx.py
 """
 import os, wave
 import numpy as np
@@ -72,4 +72,20 @@ save('riser', (tone + nz) * env, 0.6)
 # tick: tiny click for small word accents
 tt = t(0.03)
 save('tick', lowpass(rng.standard_normal(len(tt)), 6000) * np.exp(-tt * 200), 0.5)
+# zap: fast descending square-ish sweep, bit-crushed (neon look)
+tt = t(0.16)
+f = 2400 * np.exp(-tt * 22) + 160
+zap = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * np.exp(-tt * 18)
+save('zap', np.round(zap * 6) / 6, 0.45)
+
+# glitch: gated noise and tone stutters (neon transitions)
+tt = t(0.35)
+gate = (np.floor(tt * 40) % 3 != 1).astype(float)
+gl = (lowpass(rng.standard_normal(len(tt)), 5000) * 0.6 + np.sign(np.sin(2 * np.pi * 220 * tt)) * 0.3) * gate * np.exp(-tt * 5)
+save('glitch', gl, 0.6)
+
+# boing: wobbly pitch bounce (comic look)
+tt = t(0.42)
+f = 260 + 170 * np.exp(-tt * 6) * np.sin(2 * np.pi * 14 * tt) + 120 * np.exp(-tt * 10)
+save('boing', np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 6), 0.7)
 print('ok', sorted(os.listdir(OUT)))

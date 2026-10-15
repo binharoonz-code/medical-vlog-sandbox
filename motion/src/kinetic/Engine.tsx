@@ -14,8 +14,10 @@ import {C, FPS} from '../theme';
 import {Film, Group, Token, Zone, shotIn, takeoverAt, zoneAt} from './core';
 import {MotionIcon} from './stickers';
 import {WordFx} from './WordFx';
+import {LOOKS, Look} from './looks';
 
-export type KStyle = 'M' | 'N' | 'O';
+// M depth, N showdown, O punch, G neon glow, C comic bounce, J one giant word at a time.
+export type KStyle = 'M' | 'N' | 'O' | 'G' | 'C' | 'J';
 
 const FAMILY = 'AGPunch';
 const WEIGHT = '900';
@@ -50,7 +52,8 @@ const Word: React.FC<{tok: Token; size: number; style: KStyle; frame: number; k:
   const lf = frame - sf;
   const speaking = lf >= 0 && frame <= Math.round(tok.end * FPS) + 1;
   const accent = tok.accent ? ACCENT[tok.accent] : null;
-  const color = accent ?? (speaking ? C.teal : '#ffffff');
+  const jumpColors = ['#ffffff', C.teal, C.gold];
+  const color = accent ?? (style === 'J' ? jumpColors[tok.word % 3] : style === 'G' ? (speaking ? C.teal : '#f2fffc') : speaking ? C.teal : '#ffffff');
   const dir = k % 2 ? 1 : -1;
   let transform = '';
   let opacity = lf < 0 ? 0 : 1;
@@ -71,6 +74,22 @@ const Word: React.FC<{tok: Token; size: number; style: KStyle; frame: number; k:
     transform = `translateX(${tx}px) skewX(${(1 - p) * dir * -28}deg) scale(${1 + 0.08 * bumpF(lf, 7)})`;
     opacity *= 1 - exit;
     underline = accent ? sp(lf - 3, 14, 200) : 0;
+  } else if (style === 'G') {
+    // Neon: each word flickers on and glows.
+    const fl = lf < 0 ? 0 : lf < 6 ? [0, 1, 0.25, 1, 0.55, 1][lf] : 1;
+    opacity *= fl * (1 - exit);
+    transform = `scale(${(1 + 0.07 * bumpF(lf, 8)) * (1 + exit * 0.3)})`;
+  } else if (style === 'C') {
+    // Comic: squash-and-stretch bounce with a tilt.
+    const p = sp(lf, 7, 260, 0.5);
+    const sy = interpolate(p, [0, 0.55, 1], [0.15, 1.3, 1], {extrapolateLeft: 'clamp'});
+    const sx = 1 / Math.max(0.6, Math.sqrt(Math.max(0.15, sy)));
+    transform = `rotate(${dir * (6 * (1 - Math.min(1, p)) + 2.5)}deg) scale(${sx * (1 - exit * 0.8)}, ${sy * (1 - exit * 0.8)})`;
+    opacity *= 1 - exit;
+  } else if (style === 'J') {
+    // Jump: one giant word, hard snap in.
+    const p = interpolate(lf, [0, 3], [0, 1], clamp);
+    transform = `scale(${1.22 - 0.22 * p})`;
   } else {
     // Punch: words hit hard, overshoot and shake.
     const p = sp(lf, 7, 300, 0.45);
@@ -94,9 +113,14 @@ const Word: React.FC<{tok: Token; size: number; style: KStyle; frame: number; k:
         letterSpacing: -1,
         lineHeight: 1,
         color,
-        WebkitTextStroke: `${Math.max(4, size * 0.075)}px #041417`,
+        WebkitTextStroke: style === 'G' ? `${Math.max(2, size * 0.02)}px rgba(4,20,23,0.85)` : `${Math.max(4, size * (style === 'C' ? 0.09 : 0.075))}px #041417`,
         paintOrder: 'stroke fill',
-        textShadow: '0 8px 26px rgba(0,0,0,0.6)',
+        textShadow:
+          style === 'G'
+            ? `0 0 ${size * 0.08}px ${color}, 0 0 ${size * 0.22}px ${color}, 0 0 ${size * 0.45}px ${color}`
+            : style === 'C'
+              ? `${size * 0.07}px ${size * 0.07}px 0 #041417`
+              : '0 8px 26px rgba(0,0,0,0.6)',
         transform,
         opacity,
         filter: blur > 0.3 ? `blur(${blur}px)` : undefined,
@@ -126,9 +150,27 @@ const Word: React.FC<{tok: Token; size: number; style: KStyle; frame: number; k:
 };
 
 // ---------- word groups ----------
+const OneWord: React.FC<{film: Film}> = ({film}) => {
+  const frame = useCurrentFrame();
+  const t = frame / FPS;
+  const toks = tokensOf(film);
+  const i = toks.findIndex((tk, j) => t >= tk.start && t < (toks[j + 1]?.start ?? film.seconds));
+  if (i < 0 || t > toks[i].end + 0.8) return null;
+  const tok = toks[i];
+  const z = zoneAt(film, t);
+  const w100 = measureText({text: tok.text.toUpperCase(), fontFamily: FAMILY, fontWeight: WEIGHT, fontSize: 100, letterSpacing: '-1px'}).width;
+  const size = Math.min(240, (z.w * 0.82 * 100) / w100, z.h * 0.85);
+  return (
+    <div style={{position: 'absolute', left: z.x, top: z.y, width: z.w, height: z.h, display: 'flex', alignItems: 'center', justifyContent: flexAlign[z.align]}}>
+      <Word tok={tok} size={size} style="J" frame={frame} k={i} exit={0} />
+    </div>
+  );
+};
+
 const Words: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
+  if (style === 'J') return <OneWord film={film} />;
   const g = film.groups.find((x) => t >= x.start && t < x.end);
   if (!g) return null;
   const z = zoneAt(film, t);
@@ -140,7 +182,11 @@ const Words: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
       ? `rotateY(${Math.sin(frame / 24) * 8}deg) rotateX(${Math.sin(frame / 33) * 5}deg)`
       : style === 'N'
         ? `translateY(${Math.sin(frame / 18) * 6}px) rotate(${g.index % 2 ? 2 : -2}deg)`
-        : '';
+        : style === 'C'
+          ? `rotate(${g.index % 2 ? 3 : -3}deg)`
+          : style === 'G'
+            ? `translateX(${Math.sin(frame * 0.9) * (frame % 37 < 2 ? 6 : 0)}px)`
+            : '';
   let k = 0;
   return (
     <div
@@ -211,57 +257,104 @@ const Icons: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
 // ---------- camera, takeovers, sound (the "energy" layer) ----------
 // Punch envelope: up in 2 frames, settles over ~12.
 const punchEnv = (lf: number) => (lf < 0 || lf > 16 ? 0 : lf < 2 ? lf / 2 : Math.exp(-(lf - 2) / 4));
-const camera = (film: Film, frame: number) => {
+const camera = (film: Film, frame: number, mode: Look['camera']) => {
   const t = frame / FPS;
   const shot = shotIn(film.shots, t);
   const prog = Math.min(1, Math.max(0, (t - shot.from) / Math.max(0.5, shot.to - shot.from)));
   const env = tokensOf(film).reduce((m, tok) => (tok.accent ? Math.max(m, punchEnv(frame - Math.round(tok.start * FPS))) : m), 0);
-  const scale = (1 + 0.05 * prog) * (1 + 0.12 * env);
   const [fx, fy] = shot.focus ?? (shot.presenter ? [50, 28] : [50, 50]);
-  return {transform: `translate(${Math.sin(frame * 12.7) * 7 * env}px, ${Math.cos(frame * 10.3) * 5 * env}px) scale(${scale})`, transformOrigin: `${fx}% ${fy}%`};
+  const origin = `${fx}% ${fy}%`;
+  if (mode === 'dolly') {
+    // Smooth cinematic push with a slow drift; no shake.
+    const s = 1.02 + 0.1 * (prog * prog * (3 - 2 * prog));
+    return {transform: `translate(${Math.sin(t * 0.7) * 10}px, ${Math.cos(t * 0.5) * 8}px) scale(${s})`, transformOrigin: origin};
+  }
+  if (mode === 'jump') {
+    // Hard framing change on every word group, like jump cuts; small punch on accents.
+    const g = film.groups.findIndex((x) => t >= x.start && t < x.end);
+    const s = (g >= 0 && g % 2 ? 1.18 : 1.0) * (1 + 0.05 * env);
+    return {transform: `translate(${g % 2 ? -12 : 0}px, 0) scale(${s})`, transformOrigin: origin};
+  }
+  const scale = (1 + 0.05 * prog) * (1 + 0.12 * env);
+  const rot = mode === 'tilt' ? Math.sin(frame * 0.5) * 3 * env : 0;
+  return {transform: `translate(${Math.sin(frame * 12.7) * 7 * env}px, ${Math.cos(frame * 10.3) * 5 * env}px) rotate(${rot}deg) scale(${scale})`, transformOrigin: origin};
 };
 
-const Takeover: React.FC<{film: Film}> = ({film}) => {
+const Takeover: React.FC<{film: Film; look: Look}> = ({film, look}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
   const k = takeoverAt(film, t);
+  const Scene3D = look.three ? k && film.scenes3d?.[k.id] : undefined;
   const Scene = k && film.scenes?.[k.id];
-  if (!k || !Scene) return null;
+  if (!k || (!Scene && !Scene3D)) return null;
   const a = Math.round(k.from * FPS), b = Math.round(k.to * FPS);
   const inP = interpolate(frame, [a, a + 6], [0, 1], clamp);
   const outP = interpolate(frame, [b - 5, b], [0, 1], clamp);
-  const flash = interpolate(frame, [a, a + 1, a + 4], [0, 0.55, 0], clamp);
+  const lf = frame - a;
+  let style: React.CSSProperties = {opacity: inP * (1 - outP)};
+  let flashOn = interpolate(frame, [a, a + 1, a + 4], [0, 0.55, 0], clamp);
+  if (look.transition === 'zoom') {
+    style = {...style, transform: `scale(${(1.25 - 0.25 * inP) * (1 - 0.08 * outP)})`, filter: inP < 1 ? `blur(${(1 - inP) * 14}px)` : undefined};
+  } else if (look.transition === 'pop') {
+    const p = sp(lf, 8, 220, 0.5);
+    style = {opacity: Math.min(1, lf / 2) * (1 - outP), transform: `rotate(${(1 - p) * -10}deg) scale(${(0.2 + 0.8 * p) * (1 - 0.6 * outP)})`};
+    flashOn = 0;
+  } else if (look.transition === 'flip') {
+    const p = sp(lf, 14, 120, 0.8);
+    style = {opacity: Math.min(1, lf / 3) * (1 - outP), transform: `perspective(1600px) rotateY(${(1 - p) * 80 - outP * 70}deg) scale(${0.9 + 0.1 * p})`};
+    flashOn = 0;
+  } else {
+    // glitch: offset jitter for the first and last frames, flash kept short
+    const g = lf < 7 ? 1 - lf / 7 : outP;
+    style = {...style, opacity: 1 - outP * 0.9, transform: `translate(${Math.sin(frame * 31) * 40 * g}px, ${Math.cos(frame * 17) * 8 * g}px)`, filter: g > 0.05 ? `hue-rotate(${g * 90}deg) contrast(${1 + g})` : undefined};
+    flashOn *= 0.5;
+  }
   return (
     <AbsoluteFill>
-      <AbsoluteFill style={{opacity: inP * (1 - outP), transform: `scale(${(1.25 - 0.25 * inP) * (1 - 0.08 * outP)})`, filter: inP < 1 ? `blur(${(1 - inP) * 14}px)` : undefined}}>
-        <svg width={1080} height={1920} viewBox="0 0 1080 1920"><Scene t={t} /></svg>
+      <AbsoluteFill style={style}>
+        {Scene3D ? <Scene3D t={t} /> : Scene ? <svg width={1080} height={1920} viewBox="0 0 1080 1920"><Scene t={t} /></svg> : null}
       </AbsoluteFill>
-      <AbsoluteFill style={{background: '#ffffff', opacity: flash}} />
+      {look.transition === 'glitch' && lf >= 0 && lf < 7 && <Slices frame={frame} amount={1 - lf / 7} />}
+      <AbsoluteFill style={{background: '#ffffff', opacity: flashOn}} />
     </AbsoluteFill>
   );
 };
 
+// Horizontal glitch bars.
+const Slices: React.FC<{frame: number; amount: number}> = ({frame, amount}) => (
+  <AbsoluteFill style={{pointerEvents: 'none'}}>
+    {Array.from({length: 7}, (_, i) => {
+      const r = Math.abs(Math.sin(frame * 12.9898 + i * 78.233) * 43758.5453) % 1;
+      return <div key={i} style={{position: 'absolute', left: 0, right: 0, top: r * 1900, height: 8 + r * 50, background: i % 2 ? C.teal : C.coral, opacity: 0.55 * amount, transform: `translateX(${(r - 0.5) * 300}px)`, mixBlendMode: 'screen'}} />;
+    })}
+  </AbsoluteFill>
+);
+
 type Cue = {at: number; src: string; volume: number};
-export const sfxCues = (film: Film): Cue[] => {
+export const sfxCues = (film: Film, set: Look['sfx'] = 'base'): Cue[] => {
   const cues: Cue[] = [];
   let n = 0;
+  const popA = set === 'tech' ? 'zap' : set === 'cartoon' ? 'boing' : 'pop';
+  const popB = set === 'tech' ? 'zap' : set === 'cartoon' ? 'pop2' : 'pop2';
   for (const tok of tokensOf(film)) {
-    if (tok.fx) cues.push({at: tok.start, src: n++ % 2 ? 'pop2' : 'pop', volume: 0.32});
+    if (tok.fx) cues.push({at: tok.start, src: n++ % 2 ? popB : popA, volume: set === 'cartoon' ? 0.38 : 0.32});
     else if (tok.accent) cues.push({at: tok.start, src: 'tick', volume: 0.5});
+    else if (set === 'jump') cues.push({at: tok.start, src: 'tick', volume: 0.22});
   }
+  const sweep = set === 'tech' ? 'glitch' : 'whoosh';
   for (const k of film.takeovers ?? []) {
-    cues.push({at: k.from - 0.2, src: 'whoosh', volume: 0.4});
-    cues.push({at: k.from, src: 'hit', volume: 0.45});
-    cues.push({at: k.to - 0.3, src: 'whoosh_out', volume: 0.3});
+    cues.push({at: k.from - 0.2, src: sweep, volume: 0.4});
+    cues.push({at: k.from, src: set === 'cartoon' ? 'boing' : 'hit', volume: 0.45});
+    cues.push({at: k.to - 0.3, src: set === 'tech' ? 'glitch' : 'whoosh_out', volume: 0.3});
   }
   for (const sh of film.shots.slice(1)) {
-    if (!(film.takeovers ?? []).some((k) => Math.abs(k.from - sh.from) < 0.4 || Math.abs(k.to - sh.from) < 0.4)) cues.push({at: sh.from - 0.12, src: 'whoosh', volume: 0.18});
+    if (!(film.takeovers ?? []).some((k) => Math.abs(k.from - sh.from) < 0.4 || Math.abs(k.to - sh.from) < 0.4)) cues.push({at: sh.from - 0.12, src: sweep, volume: 0.18});
   }
   return cues.filter((c) => c.at >= 0 && c.at < film.seconds);
 };
-const Sfx: React.FC<{film: Film}> = ({film}) => (
+const Sfx: React.FC<{film: Film; set: Look['sfx']}> = ({film, set}) => (
   <>
-    {sfxCues(film).map((c, i) => (
+    {sfxCues(film, set).map((c, i) => (
       <Sequence key={i} from={Math.round(c.at * FPS)} durationInFrames={Math.round(FPS * 1.2)} layout="none">
         <Audio src={staticFile(`sfx/${c.src}.wav`)} volume={c.volume} />
       </Sequence>
@@ -269,30 +362,43 @@ const Sfx: React.FC<{film: Film}> = ({film}) => (
   </>
 );
 
+// Glitch on every cut for the neon look.
+const cutGlitch = (film: Film, frame: number) => {
+  const cut = film.shots.slice(1).find((sh) => frame >= Math.round(sh.from * FPS) && frame < Math.round(sh.from * FPS) + 4);
+  return cut ? 1 - (frame - Math.round(cut.from * FPS)) / 4 : 0;
+};
+
 // ---------- film + layers ----------
 const filmPunch = (film: Film, frame: number) =>
   tokensOf(film).reduce((n, tok) => (tok.accent ? n + bumpF(frame - Math.round(tok.start * FPS), 8) : n), 0);
 const flash = (film: Film, frame: number) =>
   tokensOf(film).some((tok) => tok.accent && frame - Math.round(tok.start * FPS) >= 0 && frame - Math.round(tok.start * FPS) < 2) ? 0.12 : 0;
 
-// energy: camera punch-ins and slow pushes, full-screen takeovers, sound effects.
-export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string; energy?: boolean}> = ({film, style, src, energy}) => {
+// energy / look: camera moves, full-screen takeovers, colour grade, sound effects.
+export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string; energy?: boolean; look?: Look}> = ({film, style: style0, src, energy, look: look0}) => {
   const frame = useCurrentFrame();
+  const look = look0 ?? (energy ? {...LOOKS.punchN, style: style0} : undefined);
+  const style = look?.style ?? style0;
   const punch = style === 'O' ? Math.min(1, filmPunch(film, frame)) : 0;
-  const cam = energy ? camera(film, frame) : {transform: `scale(${1 + punch * 0.05})`};
+  const cam = look ? camera(film, frame, look.camera) : {transform: `scale(${1 + punch * 0.05})`};
+  const g = look?.grade === 'neon' ? cutGlitch(film, frame) : 0;
+  const grade = look?.grade === 'neon' ? `contrast(1.2) saturate(0.75) brightness(0.82)${g > 0 ? ` hue-rotate(${g * 120}deg)` : ''}` : look?.grade === 'comic' ? 'saturate(1.35) contrast(1.1)' : undefined;
   return (
     <AbsoluteFill style={{background: '#0b1416', overflow: 'hidden'}}>
-      <AbsoluteFill style={cam}>
+      <AbsoluteFill style={{...cam, filter: grade, translate: g > 0 ? `${Math.sin(frame * 29) * 30 * g}px 0` : undefined}}>
         {src ? (
           <OffthreadVideo src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
         ) : (
           <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 30%, #2a3a3d, #0b1416 70%)'}} />
         )}
       </AbsoluteFill>
-      {energy && <Takeover film={film} />}
+      {look?.grade === 'neon' && <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(0,0,0,0.65) 100%)'}} />}
+      {look?.grade === 'neon' && g > 0 && <Slices frame={frame} amount={g} />}
+      {look?.grade === 'comic' && <AbsoluteFill style={{backgroundImage: 'radial-gradient(rgba(4,20,23,0.22) 2px, transparent 2.4px)', backgroundSize: '16px 16px', mixBlendMode: 'multiply'}} />}
+      {look && <Takeover film={film} look={look} />}
       <Icons film={film} style={style} />
       <Words film={film} style={style} />
-      {energy && <Sfx film={film} />}
+      {look && <Sfx film={film} set={look.sfx} />}
       {style === 'O' && <AbsoluteFill style={{background: '#ffffff', opacity: flash(film, frame), pointerEvents: 'none'}} />}
     </AbsoluteFill>
   );
