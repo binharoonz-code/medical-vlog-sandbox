@@ -6,6 +6,16 @@ export const W = 1080;
 export const H = 1920;
 export const FPS = 25; // matches the antibiotics R2 and solar R5 receipts
 
+// LOCKED BRAND PALETTE (AG, 16 Oct 2026). Every film uses these with the same meaning:
+//   teal  #6fe3cf  the action to take / the word being spoken / "do"
+//   coral #ff8a7a  don't, danger, myth
+//   gold  #ffd18b  time, warmth, numbers, key facts
+//   ice   #6cc6ff  water, cold, cooling
+//   alert #ff4d4d  no-signs and urgent warnings only
+//   ink   #041417  outlines and text stroke
+//   pale  #f3f7f5  default text and light shapes
+//   bg / bgDeep / panel  dark teal backgrounds for full-screen moments
+// Topic colours (sugar browns, fruit oranges…) are allowed inside illustrations only.
 export const C = {
   bg: '#08242a',
   bgDeep: '#051a1e',
@@ -16,6 +26,9 @@ export const C = {
   teal: '#6fe3cf',
   gold: '#ffd18b',
   coral: '#ff8a7a',
+  ice: '#6cc6ff',
+  alert: '#ff4d4d',
+  ink: '#041417',
   // food colours used by the sugar/fruit explainers
   whiteSugar: '#f4f1ea',
   brownSugar: '#9a6534',
