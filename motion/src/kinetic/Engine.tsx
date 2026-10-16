@@ -217,10 +217,9 @@ const Icons: React.FC<{film: Film; style: KStyle}> = ({film, style}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
   const shot = shotIn(film.shots, t);
-  if (!shot.presenter || takeoverAt(film, t)) return null;
   const beat = film.beats.find((b) => t >= b.from && t < b.to);
-  if (!beat) return null;
-  const ICON = film.iconBox;
+  if (!beat || takeoverAt(film, t) || (!beat.box && !shot.presenter)) return null;
+  const ICON = beat.box ?? film.iconBox;
   const lf = frame - Math.round(Math.max(beat.from, shot.from) * FPS);
   // Animate out only when the beat ends inside this shot; a cut is a hard cut.
   const endF = Math.round(beat.to * FPS);
@@ -280,7 +279,7 @@ const camera = (film: Film, frame: number, mode: Look['camera']) => {
   return {transform: `translate(${Math.sin(frame * 12.7) * 7 * env}px, ${Math.cos(frame * 10.3) * 5 * env}px) rotate(${rot}deg) scale(${scale})`, transformOrigin: origin};
 };
 
-const Takeover: React.FC<{film: Film; look: Look}> = ({film, look}) => {
+const Takeover: React.FC<{film: Film; look: Look; under?: boolean}> = ({film, look, under}) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
   const k = takeoverAt(film, t);
@@ -291,6 +290,14 @@ const Takeover: React.FC<{film: Film; look: Look}> = ({film, look}) => {
   const inP = interpolate(frame, [a, a + 6], [0, 1], clamp);
   const outP = interpolate(frame, [b - 5, b], [0, 1], clamp);
   const lf = frame - a;
+  if (under) {
+    // Bubble look: the scene fills the frame behind the shrinking footage.
+    return (
+      <AbsoluteFill style={{opacity: Math.min(inP * 1.5, 1) * (1 - outP)}}>
+        {Scene3D ? <Scene3D t={t} /> : Scene ? <svg width={1080} height={1920} viewBox="0 0 1080 1920"><Scene t={t} /></svg> : null}
+      </AbsoluteFill>
+    );
+  }
   let style: React.CSSProperties = {opacity: inP * (1 - outP)};
   let flashOn = interpolate(frame, [a, a + 1, a + 4], [0, 0.55, 0], clamp);
   if (look.transition === 'zoom') {
@@ -333,6 +340,15 @@ const Slices: React.FC<{frame: number; amount: number}> = ({frame, amount}) => (
 type Cue = {at: number; src: string; volume: number};
 export const sfxCues = (film: Film, set: Look['sfx'] = 'base'): Cue[] => {
   const cues: Cue[] = [];
+  if (set === 'none') return cues;
+  if (set === 'cinematic') {
+    // Quiet and sparse: only the full-screen moments get a soft whoosh and a low hit.
+    for (const k of film.takeovers ?? []) {
+      cues.push({at: k.from - 0.25, src: 'whoosh', volume: 0.2});
+      cues.push({at: k.from, src: 'hit', volume: 0.22});
+    }
+    return cues.filter((c) => c.at >= 0 && c.at < film.seconds);
+  }
   let n = 0;
   const popA = set === 'tech' ? 'zap' : set === 'cartoon' ? 'boing' : 'pop';
   const popB = set === 'tech' ? 'zap' : set === 'cartoon' ? 'pop2' : 'pop2';
@@ -368,6 +384,38 @@ const cutGlitch = (film: Film, frame: number) => {
   return cut ? 1 - (frame - Math.round(cut.from * FPS)) / 4 : 0;
 };
 
+// ---------- bubble (picture-in-picture) ----------
+const pipState = (film: Film, frame: number) => {
+  const t = frame / FPS;
+  const k = takeoverAt(film, t);
+  if (!k) return null;
+  const a = Math.round(k.from * FPS), b = Math.round(k.to * FPS);
+  const p = Math.min(sp(frame - a, 13, 160, 0.7), 1 - sp(frame - (b - 8), 13, 160, 0.7));
+  const shot = shotIn(film.shots, Math.max(0, k.from - 0.04));
+  const [fx, fy] = shot.focus ?? (shot.presenter ? [50, 28] : [50, 50]);
+  const F = {x: (fx / 100) * 1080, y: (fy / 100) * 1920};
+  const B = film.pipBubble ?? {x: 250, y: 1560, r: 200};
+  const S = 1 - 0.62 * p;
+  const R0 = B.r / 0.38;
+  const r = interpolate(p, [0, 1], [2400, R0], clamp);
+  return {
+    p,
+    style: {
+      clipPath: `circle(${r}px at ${F.x}px ${F.y}px)`,
+      transformOrigin: `${F.x}px ${F.y}px`,
+      transform: `translate(${(B.x - F.x) * p}px, ${(B.y - F.y) * p}px) scale(${S})`,
+    } as React.CSSProperties,
+  };
+};
+const PipRing: React.FC<{film: Film; p: number}> = ({film, p}) => {
+  const B = film.pipBubble ?? {x: 250, y: 1560, r: 200};
+  return p < 0.6 ? null : (
+    <svg width={1080} height={1920} style={{position: 'absolute', inset: 0, opacity: (p - 0.6) / 0.4}}>
+      <circle cx={B.x} cy={B.y} r={B.r + 4} fill="none" stroke={C.teal} strokeWidth={10} />
+    </svg>
+  );
+};
+
 // ---------- film + layers ----------
 const filmPunch = (film: Film, frame: number) =>
   tokensOf(film).reduce((n, tok) => (tok.accent ? n + bumpF(frame - Math.round(tok.start * FPS), 8) : n), 0);
@@ -375,16 +423,21 @@ const flash = (film: Film, frame: number) =>
   tokensOf(film).some((tok) => tok.accent && frame - Math.round(tok.start * FPS) >= 0 && frame - Math.round(tok.start * FPS) < 2) ? 0.12 : 0;
 
 // energy / look: camera moves, full-screen takeovers, colour grade, sound effects.
-export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string; energy?: boolean; look?: Look}> = ({film, style: style0, src, energy, look: look0}) => {
+export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string; energy?: boolean; look?: Look}> = ({film: film0, style: style0, src, energy, look: look0}) => {
   const frame = useCurrentFrame();
   const look = look0 ?? (energy ? {...LOOKS.punchN, style: style0} : undefined);
+  const film = look?.pip ? film0 : {...film0, takeovers: film0.takeovers?.filter((k) => !k.pipOnly)};
   const style = look?.style ?? style0;
   const punch = style === 'O' ? Math.min(1, filmPunch(film, frame)) : 0;
   const cam = look ? camera(film, frame, look.camera) : {transform: `scale(${1 + punch * 0.05})`};
   const g = look?.grade === 'neon' ? cutGlitch(film, frame) : 0;
+  const pip = look?.pip ? pipState(film, frame) : null;
+  const Particles = look?.particles ? film.particles3d : undefined;
   const grade = look?.grade === 'neon' ? `contrast(1.2) saturate(0.75) brightness(0.82)${g > 0 ? ` hue-rotate(${g * 120}deg)` : ''}` : look?.grade === 'comic' ? 'saturate(1.35) contrast(1.1)' : undefined;
   return (
     <AbsoluteFill style={{background: '#0b1416', overflow: 'hidden'}}>
+      {pip && pip.p > 0 && <Takeover film={film} look={look!} under />}
+      <AbsoluteFill style={pip && pip.p > 0 ? pip.style : undefined}>
       <AbsoluteFill style={{...cam, filter: grade, translate: g > 0 ? `${Math.sin(frame * 29) * 30 * g}px 0` : undefined}}>
         {src ? (
           <OffthreadVideo src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
@@ -392,10 +445,13 @@ export const KineticFilm: React.FC<{film: Film; style: KStyle; src?: string; ene
           <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 30%, #2a3a3d, #0b1416 70%)'}} />
         )}
       </AbsoluteFill>
+      </AbsoluteFill>
+      {pip && pip.p > 0 && <PipRing film={film} p={pip.p} />}
+      {Particles && <Particles t={frame / FPS} />}
       {look?.grade === 'neon' && <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(0,0,0,0.65) 100%)'}} />}
       {look?.grade === 'neon' && g > 0 && <Slices frame={frame} amount={g} />}
       {look?.grade === 'comic' && <AbsoluteFill style={{backgroundImage: 'radial-gradient(rgba(4,20,23,0.22) 2px, transparent 2.4px)', backgroundSize: '16px 16px', mixBlendMode: 'multiply'}} />}
-      {look && <Takeover film={film} look={look} />}
+      {look && !look.pip && <Takeover film={film} look={look} />}
       <Icons film={film} style={style} />
       <Words film={film} style={style} />
       {look && <Sfx film={film} set={look.sfx} />}
