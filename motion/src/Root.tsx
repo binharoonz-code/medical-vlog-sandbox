@@ -12,6 +12,7 @@ import {KineticFilm} from './kinetic/Engine';
 import {BURN} from './burn/film';
 import type {Film} from './kinetic/core';
 import {LOOKS} from './kinetic/looks';
+import type {Hook} from './hooks/kit';
 
 // Previews of the locked house style on films in production. Each film's screen
 // plan (src/films/*.film.tsx) and the film itself (public/) stay local and are
@@ -20,6 +21,9 @@ type FilmContext = {keys(): string[]; (key: string): Record<string, unknown>};
 const filmCtx = (require as unknown as {context: (dir: string, deep: boolean, re: RegExp) => FilmContext}).context('./films', false, /\.film\.tsx$/);
 const isFilm = (v: unknown): v is Film => typeof v === 'object' && v !== null && 'groups' in v && 'shots' in v;
 const PREVIEWS: Film[] = filmCtx.keys().flatMap((k) => Object.values(filmCtx(k)).filter(isFilm));
+// Opening hooks (src/films/*.hooks.tsx, also local-only).
+const hookCtx = (require as unknown as {context: (dir: string, deep: boolean, re: RegExp) => FilmContext}).context('./films', false, /\.hooks\.tsx$/);
+const HOOKS: Hook[] = hookCtx.keys().flatMap((k) => (hookCtx(k).HOOKS as Hook[] | undefined) ?? []);
 import {StyleDiagonal, StyleOrbit, StylePunch, StyleShowdown, StyleSplitKinetic} from './styles/StylesFG';
 import {CAPTION_FRAMES, StyleBlocks, StyleCaptions, StyleCinematic, StyleHybrid, StyleVersus} from './styles/StylesAB';
 
@@ -132,6 +136,11 @@ export const RemotionRoot: React.FC = () => (
           <Composition key={`L-${film.id}-${look.id}`} id={`LOOK-${film.id}-${look.id}`} component={() => <KineticFilm film={film} style={look.style} src={film.src} look={look} />} durationInFrames={film.frames} {...common} />
         )),
       )}
+    </Folder>
+    <Folder name="Hooks-2026-10-16">
+      {HOOKS.map((h) => (
+        <Composition key={h.id} id={h.id} component={h.component} durationInFrames={h.frames} {...common} />
+      ))}
     </Folder>
     <Folder name="Tests">
       <Composition id="TEST-ArabicShaping" component={ArabicShapingTest} durationInFrames={ARABIC_FRAMES} {...common} />
