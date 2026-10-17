@@ -4,10 +4,11 @@
 //   node scripts/render.mjs overlay               -> out/SUGAR-EndOverlay.mov (ProRes 4444 + alpha)
 import path from 'node:path';
 import fs from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {bundle} from '@remotion/bundler';
 import {renderMedia, renderStill, selectComposition} from '@remotion/renderer';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'); // works on Windows too
 const out = path.join(root, 'out');
 fs.mkdirSync(path.join(out, 'stills'), {recursive: true});
 
