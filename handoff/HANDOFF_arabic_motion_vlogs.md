@@ -38,8 +38,9 @@ Drive destination: Arabic → **Motion graphic** folder (uploaded by hand; the D
    - Voice settings: stability **0.4**, similarity_boost **0.8**, speed 1.2. Based on our tests, v4 effectively ignores the speed value, so pace comes from how the script is written.
    - Voice ID used: `czZ4QIPS4BGjseYaUp36` (your clone in "abdulla's Workspace"; this ID is not a secret).
    - Endpoint: `POST /v1/text-to-speech/{voice_id}/with-timestamps?output_format=mp3_44100_128`. It returns the audio plus a per-character timing alignment, which drives the word animation.
-3. **Pace:** about **140 words per minute, natural, with no artificial speed-up.** You rejected time-stretched or sped-up audio ("not like a speed up voice quality"). Your original target was 165 WPM. The 140 WPM v4 Turbo take is the one you chose ("let's stick with this one").
-4. **The only audio edit allowed:** pauses longer than 0.25 s are shortened to **0.15 s**. Speech is never cut, there's no tempo change, and loudness is normalised to **−16 LUFS** (−1.5 dBTP, linear gain only, no compression).
+3. **🔒 LOCKED (Oct 2026): pace is the voice's natural speed, never sped up.** A later batch was time-stretched to hit 160 WPM, and you heard the quality drop. You then compared versions A/B/C/D/H1/H2 and locked **H1**: the original ElevenLabs take with only the silences shortened (~140–145 WPM). If a video must be shorter, shorten the script; don't touch the audio speed. Earlier note: about **140 words per minute, natural, with no artificial speed-up.** You rejected time-stretched or sped-up audio ("not like a speed up voice quality"). Your original target was 165 WPM. The 140 WPM v4 Turbo take is the one you chose ("let's stick with this one").
+4. **🔒 The only audio edit allowed:** pauses of 0.25 s or longer are shortened to **0.08 s**. Speech is never cut. There's **no tempo change and no loudness change**: the voice keeps the exact level and tone ElevenLabs generated.
+8. **🔒 Presentation rule:** never show AG an old render. Anything previously approved or made gets the current locked methods applied (voice method, caption fixes) and is re-rendered before it's presented.
 5. **Script style:** Gulf (Emirati) Arabic, the same wording as your voice note, rewritten into **flowing, joined sentences**. Don't use comma-heavy, chopped lines: the voice slows down and sounds stilted. Write numbers out as words for the voice (e.g. «ثلاث دقايق»), but show them as Western digits on screen (e.g. «٣ دقايق» → 3, «2.5%»).
 6. **Visual style:** the style shown in section 4, applied identically to all videos. You approved it ("I loved it… apply this on all").
 7. **No music or sound effects** so far, voice only. That hasn't been decided yet; it's an option, not a decision.
@@ -66,8 +67,8 @@ Original m4a voice notes come from Google Drive (Arabic medical content list).
 - **Security:** never paste API keys into a chat. Keys go only into Zapier or ElevenLabs' own connection forms.
 
 ### Step 4: Clean the audio
-`PAUSE=0.15 python3 pace_165.py voice.mp3 final.wav <word_count> 100`
-(The low target of 100 guarantees no tempo change is applied. The script only shortens pauses and normalises loudness.) It writes `final.wav.map.json`, which records how timestamps shift after pauses are shortened.
+`python3 pace_165.py voice.mp3 final.wav <word_count> <any_target>`
+(The defaults are now the locked H1 method: PAUSE=0.08, no tempo change, no loudness change. Stretching and levelling only happen if you explicitly set ALLOW_STRETCH=1 / NORM=1. Don't.) It writes `final.wav.map.json`, which records how timestamps shift after pauses are shortened.
 
 ### Step 5: Storyboard (one JSON per video)
 Write `stories/<name>.json`. See the schema in section 5. This is the creative step: choose which visual metaphor appears on which word.
@@ -227,7 +228,7 @@ The IV/NAD video (03) has hand-written custom scenes (IV bag with dripping fluid
 | Path | What it is |
 |---|---|
 | `build_note.py` | Storyboard + audio + alignment → engine project |
-| `pace_165.py` | Pause shortening + loudness (run with PAUSE=0.15 and a low target so there's no tempo change) |
+| `pace_165.py` | 🔒 Locked H1 method by default: silences shortened to 0.08 s, no speed or loudness change |
 | `tts_extract.py` | Saved ElevenLabs response → mp3 + alignment + WPM report |
 | `motion_src/lib.js` | Background, kinetic caption line, cards, ✗/✓, stamp, IV bag, pill |
 | `motion_src/kit.js` | Icon set + all `fx` types + scene renderer |
