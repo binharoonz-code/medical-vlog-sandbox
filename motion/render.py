@@ -395,6 +395,8 @@ def main():
         print("stills written")
         return
     out = ROOT / "out" / f"{name}_motion_EN.mp4"
+    if "--out" in sys.argv:
+        out = Path(sys.argv[sys.argv.index("--out") + 1])
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium",
                            "-crf", "19", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)],
