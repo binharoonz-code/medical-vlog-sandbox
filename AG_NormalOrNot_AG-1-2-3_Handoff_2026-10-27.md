@@ -1,4 +1,11 @@
-# HANDOFF — "Normal or Not?" medical vlog series (AG-1 disc, AG-2 meniscus, AG-3 gallstones)
+# AG_NormalOrNot_AG-1-2-3_Handoff_2026-10-27 — "Normal or Not?" medical vlogs AG-1 (disc), AG-2 (meniscus), AG-3 (gallstones)
+
+> **START HERE.** This one document plus the folders next to it contain the whole project.
+> In a new chat: attach this ZIP (or point to the GitHub branch below) and say:
+> "Read AG_NormalOrNot_AG-1-2-3_Handoff_2026-10-27.md first, then continue with step 1 of the Ordered next steps."
+> The only thing NOT inside: the 3 hook videos (Higgsfield) — attach them too (links in §6).
+>
+> Folder map inside the ZIP: `audio/` narration takes · `motion/out/` review previews and motion graphics · `motion/*.py` the tools · `assets/images/` every image · `scripts/AG-1..3.md` per-topic records · `BACKLOG.md` ten more topics · `MASTER_INDEX.md` board.
 
 Prepared 2026-10-24 by Claude (cloud session `session_019k7gceBU7JFhpuCURUMeTT`) at AG's request. Read this file, `MASTER_INDEX.md`, and `scripts/AG-1.md`, `AG-2.md`, `AG-3.md` before acting.
 
