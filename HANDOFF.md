@@ -176,3 +176,54 @@ Medium. The remaining work is mechanical assembly once the hook files are availa
 
 - Any new paid generation (v2 hooks, re-narration, HeyGen, more images) → AED quote + AG approval.
 - Merging the branch / opening a PR, publication or scheduling → AG's explicit instruction.
+
+## 15. Image generation method (ChatGPT, realistic, Arab characters, 2×2 grids)
+
+**Rule (AG, 2026-10-17):** one ChatGPT image = one vertical 9:16 canvas split into 4 equal panels; Claude splits it with `motion/split_grid.py` and upscales with `motion/upscale.py`. Realistic photos only, all people Gulf Arab, same character identical across panels. Panel order: 1 top-left, 2 top-right, 3 bottom-left, 4 bottom-right.
+
+Measured result of the test: ChatGPT returned 941×1672 grids → panels 470×835 → EDSR upscale to 1080×1920 (clearly sharper than a plain resize, but not native detail).
+
+**Header to paste before every grid batch:**
+```
+INSTRUCTIONS — READ FIRST AND APPLY TO EVERY IMAGE:
+Create exactly N separate images. Each image is ONE vertical 9:16 canvas at the highest resolution you can produce, divided into a 2×2 grid of FOUR EQUAL panels: Panel 1 = top-left, Panel 2 = top-right, Panel 3 = bottom-left, Panel 4 = bottom-right. Each panel is its own complete, independent photograph in vertical 9:16 framing that fills its quarter edge to edge. Hard straight edges between panels — no borders, no gutters, no white lines, no frames, no numbers, no labels, no captions, no text anywhere. Nothing crosses from one panel into another, and each subject stays fully inside its own panel with a little breathing room from the panel edges so it can be cropped cleanly. Every panel must be PHOTOREALISTIC like a real photograph — never cartoon, 3D render or illustration — with visible skin pores and texture, no plastic sheen, natural light. ALL PEOPLE ARE ARAB with a Gulf Arab / Emirati appearance: olive-to-light-brown skin, dark hair, dark brown eyes, dressed modestly in Gulf style. When the same character appears in several panels, keep the face, age, hair, beard and clothing IDENTICAL across those panels.
+```
+
+**Next batch (ready, not yet run) — fixes the last non-Arab images for AG-2 and adds spares:**
+```
+[paste the header above with N = 1]
+
+IMAGE — MENISCUS FIXES
+Character for Panels 1–2: a grey-bearded Arab man in his late sixties with olive skin and deep wrinkles, wearing a white kandura pulled up just above the knee where needed.
+
+Panel 1 (top-left) = M9: In a bright clinic examination room, the man lies on an exam table with his right knee stuck in a bent position, unable to straighten it, grimacing and gripping the table edge, while a female Arab doctor in a white coat and black hijab gently supports his leg. Bright clinic light, shot on Leica M11 50mm.
+
+Panel 2 (top-right) = M2: Close-up of the same man on a cream living-room sofa in warm evening lamplight, pointing firmly down at his knee, wincing with one eye squeezed and lips pressed in stubborn conviction. Shot on iPhone 15 Pro, slight grain in shadows.
+
+Panel 3 (bottom-left) = M10: An Arab man in his twenties in a football kit sits on the grass at the sideline of a pitch just after an injury, his right knee visibly swollen, puffy and reddened, an ice pack beside it, hands hovering protectively near the knee. Natural afternoon light, shot on Fujifilm X100V.
+
+Panel 4 (bottom-right) = G6 replacement: A calm female Arab doctor in a white coat and black hijab sits beside an Arab woman in a black abaya and shayla in a bright consultation room, both looking at a tablet that clearly shows an adult abdominal gallbladder ultrasound with several bright round gallstones and dark shadow streaks beneath them — no baby, no fetus. The doctor makes a reassuring open-hand gesture. Soft window light, shot on Sony A7R V 35mm f/1.4.
+
+Generate 1 image: one 9:16 canvas split into four equal panels exactly as described.
+```
+Then: `python3 motion/split_grid.py GRID.png M9 M2 M10 G6` → `python3 motion/upscale.py EDSR_x4.pb M9 M2 M10 G6` → re-render.
+
+**Known image-model failure seen in this project:** ultrasound printouts defaulted to a **pregnancy (fetal) scan** — always state "adult abdominal gallbladder scan — no baby, no fetus". Check side of pain (right upper abdomen) — G7 had to be mirrored.
+
+## 16. How the topics were chosen (history)
+
+1. 20 general viral topics (first aid etc.) → AG wanted trending topics.
+2. 20 trending news topics (Oct 2026) → AG wanted viral myths.
+3. 20 viral myths (seed oils kept as "acceptable") → AG asked for "surprising normal" facts like MRI disc bulges and balding age.
+4. Final "surprising normal" list (numbers as used in this thread): 1 disc bulge, 2 meniscus, 3 rotator cuff, 4 thyroid nodules, 5 lung nodules, 6 gallstones, 7 brain MRI, 8 skipped heartbeats, 9 balding age, 10 ghutra (AR only), 11 grey hair 50-50-50 rule, 12 testosterone, 13 height loss, 14 sperm counts, 15 body temperature, 16 10,000 steps, 17 8 glasses of water, 18 earwax, 19 wisdom teeth, 20 knuckle cracking.
+5. AG selected 1, 2, 6, 7, 9, 10, 12, 13, 14, 15, 16, 17, 18, 20; then removed 20. Produced first: 1, 2, 6 (= AG-1, AG-2, AG-3). The other ten are in `BACKLOG.md`.
+
+Fact corrections made during checking (keep): gallstones "80% never symptomatic" → replaced by 2%/yr, ~8 in 10 symptom-free at 10 y; testosterone ~1%/yr → 1.6%/yr longitudinal; knuckle experiment 60 y → 50+ y; 10,000-step plateau figure → replaced by Ding 2025 (7,000); sperm "50%" → concentration −51.6%, total −62.3%, disputed.
+
+## 17. What this handoff does NOT contain
+
+- The **hook video files** themselves — only their links/job IDs (the cloud session could not download them). Bring the 3 MP4s to the new chat or work from AG's computer.
+- The raw chat transcript — only the decisions, outputs and evidence above.
+- ChatGPT originals other than the two test grids (the used images are all in `assets/images/`).
+- Live account state (credit balances, ElevenLabs/Higgsfield libraries) — re-check in the new session.
+- Note: the repository is **public**; anything committed here is visible to anyone with the link.
