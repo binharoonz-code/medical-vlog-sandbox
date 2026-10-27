@@ -3,7 +3,7 @@
 Usage:  python3 render.py disc|meniscus|gallstones [--stills]
 Scene durations are placeholders from word count; re-time to the HeyGen audio.
 """
-import math, subprocess, sys
+import math, os, subprocess, sys
 from functools import lru_cache
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -11,9 +11,21 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 W, H, FPS = 1080, 1920, 30
 ROOT = Path(__file__).resolve().parent
 IMG = ROOT.parent / "assets" / "images"
-FONT_DIR = Path("/usr/share/fonts/opentype/inter")
-BLACK = str(FONT_DIR / "InterDisplay-Black.otf")
-BOLD = str(FONT_DIR / "InterDisplay-Bold.otf")
+def _find_font(stem):
+    """Locate an Inter Display font on Linux, macOS or Windows (or $INTER_DIR)."""
+    dirs = [os.environ.get("INTER_DIR", ""), "/usr/share/fonts/opentype/inter", str(ROOT / "fonts"),
+            os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\Windows\Fonts"), r"C:\Windows\Fonts",
+            os.path.expanduser("~/Library/Fonts"), "/Library/Fonts"]
+    for d in filter(None, dirs):
+        for ext in (".otf", ".ttf"):
+            f = Path(d) / f"{stem}{ext}"
+            if f.exists():
+                return str(f)
+    raise FileNotFoundError(f"{stem} not found: install Inter (https://rsms.me/inter/) or set INTER_DIR")
+
+
+BLACK = _find_font("InterDisplay-Black")
+BOLD = _find_font("InterDisplay-Bold")
 
 WHITE = (255, 255, 255)
 TEAL = (0, 214, 180)

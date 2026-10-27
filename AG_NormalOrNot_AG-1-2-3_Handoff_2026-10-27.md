@@ -234,3 +234,15 @@ Fact corrections made during checking (keep): gallstones "80% never symptomatic"
 - ChatGPT originals other than the two test grids (the used images are all in `assets/images/`).
 - Live account state (credit balances, ElevenLabs/Higgsfield libraries) — re-check in the new session.
 - Note: the repository is **public**; anything committed here is visible to anyone with the link.
+
+## 18. Running the tools on AG's Windows computer (added 2026-10-27)
+
+Local copy: `C:\Users\LENOVO\OneDrive\المستندات\medical-vlog-sandbox` on branch `claude/vlog-image-assets` (cloned 2026-10-27, Git 2.55).
+
+1. Update first: `git pull origin claude/vlog-image-assets`.
+2. Install once: Python 3 (`winget install Python.Python.3.13`), FFmpeg (`winget install Gyan.FFmpeg`), then `pip install -r motion/requirements.txt`.
+3. Fonts are bundled in `motion/fonts/` (Inter, SIL Open Font License) — nothing to install.
+4. Run from the `motion` folder, e.g. `python preview.py disc ..\audio\disc_take2.mp3 30 96 --hook ..\hooks\disc_hook.mp4 --hook-text "MRI = PAIN?"`.
+5. Put the downloaded hook clips in `hooks\` as `disc_hook.mp4`, `meniscus_hook.mp4`, `gallstones_hook.mp4` (links in §6).
+
+Caution: the folder is inside OneDrive. If OneDrive sync locks or duplicates files during rendering, pause OneDrive sync while working, or move the project to `C:\Users\LENOVO\Projects`.
