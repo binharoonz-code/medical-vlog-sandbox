@@ -26,6 +26,8 @@ ap.add_argument("--voice"); ap.add_argument("--align"); ap.add_argument("--story
 ap.add_argument("--scale", default="1", help="2 = 4K final (only when AG says final)")
 ap.add_argument("names", nargs="*")
 a = ap.parse_args()
+# Windows: the kit scripts read/write UTF-8 JSON and Arabic text; force UTF-8 so the system code page (cp1252) is never used.
+os.environ["PYTHONUTF8"] = "1"
 kit, eng, out, work = (os.path.abspath(x) for x in (a.kit, a.engine, a.out, a.work))
 os.makedirs(out, exist_ok=True); os.makedirs(work, exist_ok=True)
 py = sys.executable
