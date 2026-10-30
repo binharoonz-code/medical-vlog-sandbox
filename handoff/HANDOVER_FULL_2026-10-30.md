@@ -1,7 +1,7 @@
 # AG Arabic Medical Motion Vlogs — FULL HANDOVER v3 (30 Oct 2026)
 
 **Self-contained.** This one file has everything needed to continue on a **local Claude session on AG's Windows PC (with Claude in Chrome)** or in a cloud session: who and what, locked rules, accounts and IDs, every link, exact status, the setup, the method, every Omni Flash and Nano Banana prompt, the QC gates, the assembly, every approved script word for word, pending decisions, and the **PUSH PROMPT (section 0)**.
-It supersedes `HANDOVER_FULL_2026-10-27.md` (kept for history).
+It supersedes `HANDOVER_FULL_2026-10-27.md` (kept for history) and includes AG's 30 Oct decisions: **Arabic voice 165–180 WPM (min 165) by rewriting, never speed-up**, and **AG's photo in the presenter slot until final, HeyGen last**.
 
 ---
 
@@ -13,15 +13,17 @@ FIRST read the full handover: repo binharoonz-code/medical-vlog-sandbox, branch 
 (clone: git clone -b claude/motion-vlog-handoff https://github.com/binharoonz-code/medical-vlog-sandbox.git C:\Users\LENOVO\mvs).
 Obey every 🔒 rule in section 2. Above all: H1 voice only (silences to 0.08 s, NO speed change, NO loudness change); never show AG an old render; Omni Flash and Nano Banana ONLY in Google Flow in AG's signed-in Chrome, never Higgsfield or any other generator; price every paid step and wait for AG's OK; never publish; only show AG work that passed QC; label evidence and say "I don't know" when unsure.
 
-STEP 1 — Engine setup on this PC (section 6). Prove it: make_all.sh M2_exam must print "DONE M2_exam video 18.09 audio 18.09" with no WARNING.
+STEP 1 — Engine setup on this PC (section 6; Git Bash make_all.sh or PowerShell make_all.py). Prove it: M2_exam must print "DONE M2_exam video 18.09 audio 18.09" with no WARNING.
 STEP 2 — Google Flow, in a NEW tab of AG's signed-in Chrome (section 9). Project "[Claude] Hooks squeezed 12".
   a) The 4 squeezed hook runs R1–R4 (section 9B). AG APPROVED: 4 runs = 60 credits. Settings Omni 1.1 Flash · Video · Frames · 9:16 · 720p · 10 s · x1.
      Apply the QC gate (section 10) to every run. On a fail, regenerate that run ONCE; a second fail means stop and report the failed item. Never show a failing run.
   b) T6: Run 1 + Run 2 (section 9A) = 30 credits. NOT yet approved: tell AG "30 credits" and wait for OK. Then Nano Banana I1–I5 (0 credits) in project "[Claude] T6 fitness sexual age".
   Save to C:\Users\LENOVO\t6w\ as HOOK_R1..R4.mp4, T6_HOOK_R1.mp4, T6_HOOK_R2.mp4, T6_NB_I1..I5.jpg, and to Drive folder 1VBnYAy5TiSSxK6BXdzRc-aUi82N_5eF_ / "T6 Flow".
-STEP 3 — Assemble (section 11). For each of the 12 videos, cut its 3.3 s hook scene from R1–R4 (cut map in section 9B, set cut points by eye), overlay kit_v2/headlines/<name>.png, and put it in front of the motion video. Use the motion design AG chose (section 4, decision D1; default = the approved reference storyboards kit_v2/stories). T6: Run 1 → Run 2 → T6 motion video, with I1–I5 as push-in B-roll on their words.
-STEP 4 — Your own QC on every assembled video (section 10, final check). Then send AG only the ones that pass, grouped by topic. Report failures in one line each.
-STEP 5 — Continue the pending gates in section 4, one at a time: AG's still photo, pace decision, fact-check list, "final" (remove the draft tag, 4K), next topic batch (Gulf Arabic, speech first, G1).
+STEP 3 — Rewrite all 13 Arabic scripts to 165–180 WPM, minimum 165 (rule 2, DECIDED; gate G1). Order: T6_fitness, Kill_Testosterone, T2_three, T3_free, T4_quiz, Magnesium_montage, M1_stop, M2_exam, M3_pov, M4_trend, MRI5_twist, MRI6_doctor, PEP4_three. Start from the section-12 voice text; keep the meaning, AG's words, Gulf dialect (ريال), English medical terms, the «ممكن» softenings and «بيبتايد»; make it flow (joined sentences, fewer commas, no filler). Show AG all rewrites in Arabic in ONE message (old vs new word count) and wait for approval or edits.
+STEP 4 — Re-voice the approved rewrites: price first (creative_generate_speech estimate_only), wait for OK; eleven_v4, voice czZ4QIPS4BGjseYaUp36, flow NJvM5Mt3e0lRTWJDX6EW, default 2 takes. Measure WPM after H1; if under 165, add a v4 pace tag ([speaking fast, energetic]) and retry once; report the WPM per video. Then Scribe → tr_to_align.py → update caption lines and re-anchor FX refs in the chosen storyboards (D1) → make_all.py --voice/--align/--story → preview QC → full render. AG's photo in the presenter slot (D5) as soon as he sends it (save as kit_v2/motion_src/ag_photo.png and make the presenter FX draw it).
+STEP 5 — Assemble (section 11). For each of the 12 videos, cut its 3.3 s hook scene from R1–R4 (cut map in section 9B, set cut points by eye), overlay kit_v2/headlines/<name>.png, and put it in front of the RE-VOICED motion video. T6: Run 1 → Run 2 → T6 motion video, with I1–I5 as push-in B-roll on their words.
+STEP 6 — Your own QC on every assembled video (section 10, final check). Send AG only the ones that pass, grouped by topic. Report failures in one line each.
+STEP 7 — Continue the pending gates in section 4, one at a time: D1 (if still unclear), fact-check list, "final" (remove the draft tag, 4K, copy to G:\My Drive), then HeyGen on the presenter slot as the VERY LAST step (ask before any spend), then the next topic batch (Gulf Arabic, written for ≥165 WPM, speech first, G1).
 Report in short, direct English; give AG's Arabic scripts in Arabic. Never publish. Commit new kit/scripts to the same branch with clear messages.
 ```
 
@@ -46,10 +48,16 @@ Report in short, direct English; give AG's Arabic scripts in Arabic. Never publi
    - The only edit: silences of 0.25 s or longer are shortened to **0.08 s**.
    - **No speed change** (no rubberband or atempo) and **no loudness change**.
    - `pace_165.py` does H1 by default. Never set `ALLOW_STRETCH` or `NORM`.
-2. **Pace (OPEN, see D3):** the 24 Oct target is 165 WPM (170 ideal), reached **only by rewriting more fluidly and re-voicing**, never by speeding up. The H1 videos run at 130–145 WPM.
+2. **🔒 Pace, DECIDED by AG on 30 Oct: the Arabic voice must run at 165–180 WPM, minimum 165.**
+   - Get there by **rewriting the script** to be more fluid and denser (joined sentences, fewer commas, no filler), plus **eleven_v4 pace tags** if needed (`[speaking fast, energetic]`).
+   - **Never by speeding up audio** (rule 1).
+   - Measure WPM on the H1 output: alpha words ÷ seconds × 60.
+   - All 13 current videos (130–145 WPM) **must be rewritten (G1) and re-voiced**.
 3. **Presentation:** never show AG an old render. Rebuild with the current locked methods first.
 4. **Video generation (Omni Flash) and Nano Banana run only in Google Flow**, in AG's signed-in Chrome, driven by a local Claude session with Claude in Chrome. **Never Higgsfield** or any other generator for the medical vlogs. Cloud sessions can't reach Flow.
-5. **AG's speaking parts are motion graphics**, with a **still photo of AG** in the presenter slot (placeholder «صورة د. AG»). HeyGen is applied to that slot last.
+5. **🔒 AG's speaking parts are motion graphics**, with **AG's still photo in the presenter slot in every render until the video is final** (AG, 30 Oct).
+   - **HeyGen is the very last step**, after AG approves the final.
+   - Until AG sends the photo, use the placeholder «صورة د. AG» and ask him for it.
 6. **Hooks (omni-clip-pipeline v3.3) + the SQUEEZE RULE:**
    - **3–5 s per hook, 2–3 hooks per 10 s run.** Never spend one 10 s run on one hook when it can carry 3. (AG, 30 Oct: 12 hooks = 4 runs = 60 credits, not 180.)
    - Each hook has one dramatic acted action, hyper-expressive faces, crash zooms and whip pans, and ASMR.
@@ -119,9 +127,9 @@ Report in short, direct English; give AG's Arabic scripts in Arabic. Never publi
   - **Unclear which set.** The last session assumed «الأصل» = the approved reference set (the pipeline default) but didn't get confirmation. Ask before the final assembly.
   - If AG picks scratch: `STORIES=$KIT/stories_scratch`.
 - **D2 Screen hooks for the 12 videos:** the headlines in section 9B were proposed in section 13 and are part of the v3 pack AG approved. Treat them as **approved with the pack**, but show them in the first assembled preview. Magnesium_montage's «تاخذ Magnesium غلط؟» is new (Claude's).
-- **D3 Pace:** keep H1's natural pace, or rewrite more fluidly toward 165 WPM and re-voice (costs ElevenLabs credits; price it first)? Not answered.
+- **D3 Pace: DECIDED (30 Oct).** 165–180 WPM, minimum 165, by rewriting (and v4 pace tags), never by speeding up. All 13 scripts get rewritten → AG approves (G1) → re-voice (price first) → rebuild.
 - **D4 T6 Omni runs (30 credits):** not explicitly approved yet.
-- **D5 AG's still photo** for the presenter slot: not received.
+- **D5 AG's still photo** for the presenter slot: not received. AG confirmed it stays in the slot until final; HeyGen comes last.
 - **D6 Fact-check list:** sent to AG with grades (below). No edits decided.
 - **D7 "Final":** when AG says it, remove the draft tag and render 4K (`--scale 2`). AG uploads to Drive.
 - **D8 Next topics** (after final):
@@ -153,6 +161,8 @@ Report in short, direct English; give AG's Arabic scripts in Arabic. Never publi
 | `handoff/kit_v2/scripts/build_note.py` | storyboard + voice + alignment → engine project. `ALIGN=<align.json>`; arg 5 = pace map |
 | `handoff/kit_v2/scripts/tr_to_align.py` | Scribe `words.json` + voice text → alignment |
 | `handoff/kit_v2/scripts/make_all.sh` | pace → build → render → mux. Env `KIT ENGINE OUT WORK STORIES CHROME` |
+| `handoff/kit_v2/scripts/make_all.py` | **Same pipeline, cross-platform (PowerShell/Windows, no Git Bash needed).** `python make_all.py --kit K --engine E --out O --work W [--voice mp3 --align json --story json] [--scale 2] NAME...`. Tested 30 Oct: M2_exam audio byte-identical to the approved version. |
+| `handoff/reference_previews/<name>.mp4` | 540p previews of the 13 approved H1 renders, for visual reference |
 | `handoff/kit_v2/scripts/preview.sh` | pace → build → contact sheet with safe zone (frame 0 + 85% of each scene) |
 | `handoff/kit_v2/scripts/assemble_hook.sh` | `HEADLINE=png assemble_hook.sh out.mp4 motion.mp4 run.mp4@start-end [...]` |
 | `handoff/kit_v2/scripts/make_headlines.js` | renders `kit_v2/headlines/*.png` (needs Playwright) |
@@ -182,6 +192,13 @@ cd /c/Users/LENOVO/mvs && OUT=$PWD/out/reference WORK=$PWD/work bash $KIT/script
 - If python is `py` on Windows, alias it: `alias python3=py`.
 - If ffmpeg is missing: `winget install Gyan.FFmpeg`.
 - For make_headlines.js only: `npm i playwright && npx playwright install chromium`. The PNGs are already committed, so this is only needed for new headlines.
+
+**Windows without Git Bash (PowerShell), using `make_all.py`:**
+```powershell
+$env:CHROME = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+python C:\Users\LENOVO\mvs\handoff\kit_v2\scripts\make_all.py --kit C:\Users\LENOVO\mvs\handoff\kit_v2 --engine C:\Users\LENOVO\vae\video-ad-editor\motion --out C:\Users\LENOVO\mvs\out\reference --work C:\Users\LENOVO\mvs\work M2_exam
+```
+- If Chrome renders black frames on Windows, remove `--use-angle=metal` from `render.js` launch args locally.
 
 **Cloud:** the same, with `CHROME=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` (check with `ls /opt/pw-browsers`).
 
