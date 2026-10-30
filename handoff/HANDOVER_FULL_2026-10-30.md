@@ -121,6 +121,11 @@ Report in short, direct English; give AG's Arabic scripts in Arabic. Never publi
 - New tools: `scripts/preview.sh` (QC contact sheet), `scripts/assemble_hook.sh` (cuts a scene from a squeezed run, overlays the headline PNG, concats with the motion video), `scripts/make_headlines.js` plus `kit_v2/headlines/*.png` (13 Arabic screen hooks, rendered and checked RTL), and `STORIES=` support in `make_all.sh`.
 - T6 Flow pack for the PC: `handoff/PC_SESSION_T6_FLOW.md`.
 
+**PC session (30 Oct 2026, local, Claude Code on AG's Windows PC):**
+- STEP 1 of the push prompt done and proven (section 6, "Proven on AG's PC"). STEP 2 (Flow, 60 credits) not started: waiting for AG's in-session go.
+- Same repo also holds the English "Normal or Not" line (branch `claude/vlog-image-assets`, local copy `C:\Users\LENOVO\OneDrive\المستندات\medical-vlog-sandbox`): its three hook MP4s are on the PC (`hooks/`) and the three full previews with hooks were rebuilt 30 Oct 21:30 (hook text moved to the lower third), uncommitted, awaiting AG's review. That line is separate from this one; nothing here depends on it.
+- **D9 Arabic pace conflict to resolve:** this handover says AG DECIDED 30 Oct: 165–180 WPM by rewriting. The installed `ag-vlog-finish` skill (also dated 30 Oct) says the natural pace of the chosen Arabic v4 takes (~117–129 WPM) is accepted and 165 is not enforced for Arabic. Ask AG which is current before STEP 3 (rewrites); until then, do not rewrite or re-voice.
+
 **Decisions — open or ambiguous (ask AG, one at a time):**
 - **D1 Motion design per video: scratch or reference?**
   - AG said "I've seen them, not bad, I think they're good now… apply them to the pipeline", then «ارجع للأصل… أبغى فيديوهات على نفس اللي احنا اتفقنا عليهم».
@@ -199,6 +204,13 @@ $env:CHROME = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 python C:\Users\LENOVO\mvs\handoff\kit_v2\scripts\make_all.py --kit C:\Users\LENOVO\mvs\handoff\kit_v2 --engine C:\Users\LENOVO\vae\video-ad-editor\motion --out C:\Users\LENOVO\mvs\out\reference --work C:\Users\LENOVO\mvs\work M2_exam
 ```
 - If Chrome renders black frames on Windows, remove `--use-angle=metal` from `render.js` launch args locally.
+
+**Proven on AG's PC (30 Oct 2026, local Claude session):**
+- `C:\Users\LENOVO\mvs` = this branch (clone). `C:\Users\LENOVO\vae` = engine at cf39f0f, npm deps installed, `render_js.patch` applied. `C:\Users\LENOVO\t6w` created (empty). Tools present: Git 2.55, Node 24, Python 3.12 (`python`/`py`; there is no `python3` on this PC), ffmpeg 9.0.2, Chrome at the default path.
+- The PowerShell/`make_all.py` route printed `DONE M2_exam video 18.093729 audio 18.093729`, no WARNING, 66 s wall time, frames not black (so `--use-angle=metal` was left as is).
+- **Windows fix in `make_all.py` (commit 94b234b):** it now sets `PYTHONUTF8=1` for the kit scripts. Without it, `build_note.py` read the UTF-8 alignment JSON with cp1252 and failed (`UnicodeDecodeError ... byte 0x81`). Git Bash `make_all.sh` would need `export PYTHONUTF8=1` and `alias python3=python` for the same reason.
+- Claude in Chrome: two extension instances were connected on this PC; "Browser 1" is the one in use for the session. Google Flow was NOT opened yet (waits for AG's go in-session, section 4).
+- Not found on this PC: `G:\My Drive` has no synced "Viral scripts — Magnesium & Testosterone" / "T6 Flow" folder (it may be a shared folder that isn't synced); `N08_RULES_2026-10-24.md` is at `G:\My Drive\P004_Temp\N08 Fruit vs Juice — 2026-09-22 Trial\`. AG's photo for the presenter slot: not received.
 
 **Cloud:** the same, with `CHROME=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` (check with `ls /opt/pw-browsers`).
 
