@@ -4,7 +4,7 @@ Squeeze rule (locked rule 6, omni-clip-pipeline v3.3): **3–5 s per hook, 2–3
 AG's pattern in every hook: the phone shows a result in red with a large red arrow plunging down → crash zoom, he screams, sweating, pressing the phone to his head → one short line leading into the speech. It's serious drama, never comedy. AG is never on screen.
 Settings: Google Flow on AG's PC only, **Omni 1.1 Flash · Video · Frames · 9:16 · 720p · 10 s · x1 = 15 credits per run.** Regenerate a run once at most, then stop and report.
 Text: each scene's only text is the phone result, in English. Each video's Arabic headline is overlaid in assembly from the first frame.
-T6 keeps its approved section-11 runs (2 runs, 30 credits).
+T6 keeps its own section-11 runs (2 runs, 30 credits, still awaiting AG's OK).
 
 Shared character for all 4 runs (same man, so the 12 hooks look like one series):
 `an Emirati man about 35, short black beard, white kandura, hyper-expressive face`
