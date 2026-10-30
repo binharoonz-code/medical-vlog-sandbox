@@ -66,3 +66,16 @@ Every line is spoken once.
 | R4 | MRI5_twist «MRI طمّنك… ولا خوّفك؟» | MRI6_doctor «فحص ما أنصح فيه» | PEP4_three «Peptide أونلاين؟ 3 أسئلة» |
 
 Cut points are set by eye on the real clip, since Omni scene edges drift. Use `scripts/assemble_hook.sh out.mp4 motion.mp4 run.mp4@START-END`.
+
+---
+
+## AG approved (30 Oct 2026): 4 runs, 60 credits. QC gate before anything reaches AG
+Run R1 to R4 in order. After each run, check every scene and **show AG only runs that pass every item**:
+1. Phone text is legible English, matches the prompt, and is red with a down arrow. There is no other text in the frame.
+2. Same man in every scene (beard, kandura, face). Hands and fingers look normal. No warped faces.
+3. Each scene has the full beat: phone, then scream with sweat and phone to the head, then the line.
+4. The Arabic line is spoken once, clearly, in Gulf dialect, within its 3.3 s, and isn't cut off at the scene edge.
+5. ASMR is audible. There are no stray voices or music.
+6. Props stay plain blank (bottles, vial, parcel).
+On a fail: regenerate that run **once**. If it fails again, stop, don't show it, and report which item failed. Shorten that run's long lines (Kill, MRI5) only if they were rushed.
+Save as `C:\Users\LENOVO\t6w\HOOK_R1.mp4` … `HOOK_R4.mp4` plus Drive "T6 Flow". Then the cloud session cuts, overlays the Arabic headlines, assembles the 12 videos, runs its own QC (frame checks, length = hook + motion), and only then sends them to AG.
