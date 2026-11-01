@@ -126,6 +126,12 @@ Report in short, direct English; give AG's Arabic scripts in Arabic. Never publi
 - Same repo also holds the English "Normal or Not" line (branch `claude/vlog-image-assets`, local copy `C:\Users\LENOVO\OneDrive\المستندات\medical-vlog-sandbox`): its three hook MP4s are on the PC (`hooks/`) and the three full previews with hooks were rebuilt 30 Oct 21:30 (hook text moved to the lower third), uncommitted, awaiting AG's review. That line is separate from this one; nothing here depends on it.
 - **D9 Arabic pace conflict to resolve:** this handover says AG DECIDED 30 Oct: 165–180 WPM by rewriting. The installed `ag-vlog-finish` skill (also dated 30 Oct) says the natural pace of the chosen Arabic v4 takes (~117–129 WPM) is accepted and 165 is not enforced for Arabic. Ask AG which is current before STEP 3 (rewrites); until then, do not rewrite or re-voice.
 
+**PC session, 1 Nov 2026 (local): STEP 2a done, QC in `handoff/QC_HOOKS_2026-11-01.md`.**
+- AG gave the in-session go. R1–R4 generated in Flow project "[Claude] Hooks squeezed 12" (60 credits spent), saved as `C:\Users\LENOVO\t6w\HOOK_R1..R4.mp4`.
+- Gate A: **R1 pass (notes), R3 pass (flag), R2 FAIL scene 1 (garbled phone text), R4 FAIL scene 1 (no phone result shown).** Cut points measured per run are in the QC file (Omni edges drifted up to 0.25 s from 3.3/6.6).
+- Waiting on AG: regenerate R2 + R4 once (30 credits ≈ AED 1.10)? D9 pace, D1 design set, D5 photo, D4 T6 runs still open.
+- Tooling notes: Flow's download and trash icons sit side by side in the detail panel: click by element reference only. faster-whisper on this PC needs the wav loaded via numpy (its bundled `av` is too old). Prompt paste: select the ProseMirror contents with a Range before the synthetic paste, or the text is appended instead of replaced. `pace_165.py` now removes its temp file with os.remove (Windows has no rm); committed in fe4f37a.
+
 **Decisions — open or ambiguous (ask AG, one at a time):**
 - **D1 Motion design per video: scratch or reference?**
   - AG said "I've seen them, not bad, I think they're good now… apply them to the pipeline", then «ارجع للأصل… أبغى فيديوهات على نفس اللي احنا اتفقنا عليهم».
