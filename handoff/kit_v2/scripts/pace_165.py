@@ -58,7 +58,7 @@ ln = (f"loudnorm=I=-16:TP=-1.5:LRA=11:linear=true:measured_I={j['input_i']}:meas
       f"measured_LRA={j['input_lra']}:measured_thresh={j['input_thresh']}:offset={j['target_offset']}")
 r = run(["ffmpeg", "-hide_banner", "-y", "-i", pre] + ([] if NONORM else ["-af", ln]) + [ "-ar", "48000", "-ac", "1", dst])
 if r.returncode: sys.exit(r.stderr[-2000:])
-subprocess.run(["rm", "-f", pre])
+if os.path.exists(pre): os.remove(pre)   # portable: Windows has no rm
 
 final_ = None
 final = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", dst]).stdout)
