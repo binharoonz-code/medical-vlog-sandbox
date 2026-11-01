@@ -59,15 +59,22 @@ const ICON = {
   idcard(X) { rrect(X, -150, -95, 300, 190, 20); X.stroke(); X.beginPath(); X.arc(80, -15, 38, 0, 6.2832); X.stroke();
     X.beginPath(); X.moveTo(30, 60); X.quadraticCurveTo(80, 10, 130, 60); X.stroke(); [-40, -5, 30].forEach(y => { X.beginPath(); X.moveTo(-120, y); X.lineTo(-10, y); X.stroke(); }); },
 };
-// presenter slot: placeholder for AG's still photo (HeyGen talking head replaces it later)
+// presenter slot: AG's still photo (photo.js, from the presenter sheets) until the HeyGen talking head replaces it; falls back to the «صورة د. AG» placeholder
+let _agImg = null;
+if (typeof AG_PHOTO !== 'undefined') { _agImg = new Image(); _agImg.src = AG_PHOTO; }
 function presenter(ctx, X, t, f) { const k = appear(ctx, t, f.at, 0.5) * (f.until ? 1 - ctx.at(t, f.until - 0.25, f.until + 0.1) : 1); if (k <= 0) return;
   const w = f.w || 620, h = f.h || 760, x = 540 - w / 2, y = f.y ?? 230;
   X.save(); X.globalAlpha *= Math.min(1, k); X.translate(540, y + h / 2); X.scale(0.9 + 0.1 * Math.min(1, k), 0.9 + 0.1 * Math.min(1, k)); X.translate(-540, -(y + h / 2));
   card(X, x, y, w, h, 1, T().faint);
-  X.save(); X.beginPath(); rrect(X, x, y, w, h, 28); X.clip(); X.fillStyle = 'rgba(141,162,188,0.28)';
-  X.beginPath(); X.arc(540, y + h * 0.40, h * 0.17, 0, 6.2832); X.fill();
-  X.beginPath(); X.ellipse(540, y + h * 0.98, w * 0.42, h * 0.34, 0, 0, 6.2832); X.fill(); X.restore();
-  ctx.text(X, f.label || 'صورة د. AG', 540, y + h - 40, { family: 'body', weight: 700, size: 40, color: COL.mute });
+  const havePhoto = _agImg && _agImg.complete && _agImg.naturalWidth > 0;
+  X.save(); X.beginPath(); rrect(X, x, y, w, h, 28); X.clip();
+  if (havePhoto) { const s = Math.max(w / _agImg.naturalWidth, h / _agImg.naturalHeight); const iw = _agImg.naturalWidth * s, ih = _agImg.naturalHeight * s;
+    X.drawImage(_agImg, x + (w - iw) / 2, y + (h - ih) * 0.2, iw, ih); }
+  else { X.fillStyle = 'rgba(141,162,188,0.28)';
+    X.beginPath(); X.arc(540, y + h * 0.40, h * 0.17, 0, 6.2832); X.fill();
+    X.beginPath(); X.ellipse(540, y + h * 0.98, w * 0.42, h * 0.34, 0, 0, 6.2832); X.fill(); }
+  X.restore();
+  if (!havePhoto || f.label) ctx.text(X, f.label || 'صورة د. AG', 540, y + h - 40, { family: 'body', weight: 700, size: 40, color: COL.mute });
   X.restore(); }
 function icon(ctx, X, name, x, y, s, a, t, o = {}) {
   if (a <= 0 || !ICON[name]) return;

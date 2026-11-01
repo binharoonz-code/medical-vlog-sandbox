@@ -166,7 +166,8 @@ if os.environ.get("THEME"):
     if m:
         pj = json.load(open(f"{out}/project.json", encoding="utf-8")); pj["post"] = json.loads(m.group(1))
         json.dump(pj, open(f"{out}/project.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-js = open(f"{src}/lib.js", encoding="utf-8").read() + "\n" + theme_js + "\nconst DATA = " + json.dumps({"scenes": scenes}, ensure_ascii=False) + ";\n" + open(f"{src}/kit.js", encoding="utf-8").read()
+photo_js = open(f"{src}/photo.js", encoding="utf-8").read() + "\n" if os.path.exists(f"{src}/photo.js") else ""  # AG still photo for the presenter slot
+js = open(f"{src}/lib.js", encoding="utf-8").read() + "\n" + theme_js + "\n" + photo_js + "const DATA = " + json.dumps({"scenes": scenes}, ensure_ascii=False) + ";\n" + open(f"{src}/kit.js", encoding="utf-8").read()
 open(f"{out}/scenes/all.js", "w", encoding="utf-8").write(js)
 json.dump([{"line": v["id"], "start": v["start"], "end": v["end"], "text": v["text"], "flag": S.get("flags", {}).get(v["id"][1:], "")} for v in vo],
           open(f"{out}/captions.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
