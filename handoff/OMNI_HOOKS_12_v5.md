@@ -52,3 +52,30 @@ Every line is spoken once.
 ```
 
 Cut map unchanged: R1 → Kill, T2, T3 · R2 → T4, Montage, M1 · R3 → M2, M3, M4 · R4 → MRI5, MRI6, PEP4 (cut points by eye).
+## Redo prompts (one allowed regenerate of R1 and R3, 30 credits; relayed yes from thread "Pipeline Update" 2 Nov, NOT yet confirmed in this thread)
+
+Only the Kill and M3 lines are shortened: Kill «التستوستيرون عندي نازل! ليش؟!» · M3 «حبة مغنيسيوم كل ليلة… وما أرقد؟!». Files `HOOK5_R1b.mp4`, `HOOK5_R3b.mp4`.
+
+### RUN 1 redo
+
+```
+Photoreal cinematic, vertical 9:16, 10 seconds, three fast hook scenes, hyper-expressive faces, kinetic camera with crash zooms and whip pans, crisp ASMR sound in every scene. Character, identical in every scene: an Emirati man about 35, short black beard, white kandura.
+Exactly one on-screen text per scene: the phone screen.
+
+SCENE 1, 0–3.3 s: Living room at night, phone ding; close-up of his phone screen showing "Testosterone" in bold red with a large red arrow plunging downward; crash zoom as he screams, sweating, pressing the phone to his head: «التستوستيرون عندي نازل! ليش؟!»
+SCENE 2, 3.3–6.6 s: Dark bedroom at 3 in the morning; close-up of the phone screen showing "Testosterone LOW" in bold red with a large red arrow plunging downward; he sits bolt upright, sweating, phone pressed to his forehead: «تستوستيرون منخفض؟! أنا شو مسوي غلط؟!»
+SCENE 3, 6.6–10 s: Shop aisle of plain blank white supplement tubs; close-up of the phone screen showing "Testosterone" in bold red with a large red arrow plunging downward; his basket drops, tubs scatter: «تستوستيرون نازل… يعني لازم أشتري هذا كله؟!»
+Every line is spoken once.
+```
+
+### RUN 3 redo
+
+```
+Photoreal cinematic, vertical 9:16, 10 seconds, three fast hook scenes, hyper-expressive faces, kinetic camera with crash zooms and whip pans, crisp ASMR sound in every scene. Character, identical in every scene: an Emirati man about 35, short black beard, white kandura.
+Exactly one on-screen text per scene: the phone screen.
+
+SCENE 1, 0–3.3 s: Home office desk with a plain white pill bottle; close-up of his phone screen showing "Sleep: FAIL" in bold red with a large red arrow plunging downward; he yells and shoves back from the desk: «المغنيسيوم رسب في النوم؟!»
+SCENE 2, 3.3–6.6 s: Dark bedroom, he grips a plain white bottle; close-up of the phone screen showing "Sleep: 50/50" in bold red with a large red arrow plunging downward; he groans into the pillow, bloodshot eyes: «حبة مغنيسيوم كل ليلة… وما أرقد؟!»
+SCENE 3, 6.6–10 s: Living room couch; close-up of the phone screen showing "Trend: FALSE" in bold red with a large red arrow plunging downward; the bottle drops with a rattle, he presses the phone to his head: «ترند المغنيسيوم كذب علي؟!»
+Every line is spoken once.
+```
