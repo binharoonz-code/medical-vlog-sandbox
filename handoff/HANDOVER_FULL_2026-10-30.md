@@ -129,7 +129,8 @@ Report in short, direct English; give AG's Arabic scripts in Arabic. Never publi
 **PC session, 1 Nov 2026 (local): STEP 2a done, QC in `handoff/QC_HOOKS_2026-11-01.md`.**
 - AG gave the in-session go. R1–R4 generated in Flow project "[Claude] Hooks squeezed 12" (60 credits spent), saved as `C:\Users\LENOVO\t6w\HOOK_R1..R4.mp4`.
 - Gate A: **R1 pass (notes), R3 pass (flag), R2 FAIL scene 1 (garbled phone text), R4 FAIL scene 1 (no phone result shown).** Cut points measured per run are in the QC file (Omni edges drifted up to 0.25 s from 3.3/6.6).
-- Waiting on AG: regenerate R2 + R4 once (30 credits ≈ AED 1.10)? D9 pace, D1 design set, D5 photo, D4 T6 runs still open.
+- **Regeneration done (AG's in-session OK, 30 credits): R2b PASS, R4b FAIL scene 1 again (line split across the cut) → stopped per rule 8. Total today 90 credits ≈ AED 3.3.** Proposed final cut map in the QC file: 11 of 12 hooks clean; MRI5_twist can use R4b scene 1 with the short line «شو يعني هذا؟» if AG accepts, else a third R4 run (15 credits) needs AG's explicit OK.
+- Waiting on AG (was: regenerate R2 + R4, now done; 30 credits ≈ AED 1.10)? D9 pace, D1 design set, D5 photo, D4 T6 runs still open.
 - Tooling notes: Flow's download and trash icons sit side by side in the detail panel: click by element reference only. faster-whisper on this PC needs the wav loaded via numpy (its bundled `av` is too old). Prompt paste: select the ProseMirror contents with a Range before the synthetic paste, or the text is appended instead of replaced. `pace_165.py` now removes its temp file with os.remove (Windows has no rm); committed in fe4f37a.
 
 **Decisions — open or ambiguous (ask AG, one at a time):**
